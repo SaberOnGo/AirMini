@@ -1,0 +1,6 @@
+目标文件:I:\project\GitHub\4_PM25Sensor_C8T6_bp_170731\bin\2017-8-22-传感器自动切换版本\pm25_hcho_update_V1.129.3.bin   大小:0x0000F76C
+各部分大小如下:
+
+索引                        文件名                                            大小              偏移量            强制插入
+ 1      I:\project\GitHub\4_PM25Sensor_C8T6_bp_170731\bin\2017-8-22-传感器自动切换版本\bootloader.bin        0x00002C34        0x00000000             否
+ 2      I:\project\GitHub\4_PM25Sensor_C8T6_bp_170731\bin\2017-8-22-传感器自动切换版本\update_V1.129.3.bin        0x0000B76C        0x00004000             否

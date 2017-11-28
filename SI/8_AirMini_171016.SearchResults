@@ -1,0 +1,5 @@
+---- BatLev_ClosePower Matches (4 in 3 files) ----
+BatteryLevel.c (driver\src):void BatLev_ClosePower(uint8_t pwr_close)
+BatteryLevel.c (driver\src):       BatLev_ClosePower(1);
+BatteryLevel.h (driver\inc):void BatLev_ClosePower(uint8_t pwr_close);
+Key_Drv.c (driver\src):                            BatLev_ClosePower(0);  // ¹Ø»ú
