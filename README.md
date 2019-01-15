@@ -28,7 +28,7 @@ app(最大40KB):  39896B (38.96kB)
 
 地址设置：
 IROM1  Start = 0x08002000, Size = 0xA000
-说明：  STM32F103C8T6, ROM = 48KB, RAM = 20KB
+说明：  STM32F103C8T6, ROM = 64KB, RAM = 20KB
        因为Bootloader 占了8KB = 0x2000, 所以地址 0x08000000 - 0x08001FFF 地址为Bootloader程序区
        剩余的为应用程序区： 0x08002000 - 0x0800BFFF, 共 0xA000(40KB) 
 
