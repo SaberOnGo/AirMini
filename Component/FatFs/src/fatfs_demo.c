@@ -9,6 +9,11 @@
 #include "spi_flash_interface.h"
 #include "os_global.h"
 
+#if GIZWITS_TYPE
+#include "gizwits_port.h"
+extern char * PRODUCT_KEY_STRING(void);
+extern char *PRODUCT_SECRET_STRING(void);
+#endif
 
 #if FAT_DEBUG_EN
 #define fat_printf(fmt, ...)  printf(fmt, ##__VA_ARGS__)
@@ -20,8 +25,8 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 FATFS FlashDiskFatFs;         /* Work area (file system object) for logical drive */
-char FlashDiskPath[8] = "0:";
-char UpdateDirPath[32] = "0:/update";   // 升级文件路径
+char FlashDiskPath[3] = "0:";
+char UpdateDirPath[16] = "0:/update";   // 升级文件路径
 static char FileOutPath[64];
 
 #if _USE_LFN
@@ -86,7 +91,8 @@ E_RESULT FILE_Open(FIL * pFileFIL, char * file_name)
    int len = 0;
    DIR dirs;
    uint8_t is_first_create = 0;  // 是否第一次创建
-   	
+   //DWORD fixed_len = os_strlen(SensorUnitItem)  + os_strlen(SensorNameItem);
+   
    // 判断目录是否存在, 不存在则创建
    res = f_opendir(&dirs, (const TCHAR *)sensor_dir);  // 打开所在目录
    fat_printf("open dir %s %s\n", sensor_dir, (res == FR_OK ? "ok" : "failed"));
@@ -107,10 +113,13 @@ E_RESULT FILE_Open(FIL * pFileFIL, char * file_name)
    os_strncpy(&sensor_dir[len + 1], file_name, sizeof(sensor_dir));
 
    res = f_open(pFileFIL, (const TCHAR * )sensor_dir, FA_OPEN_ALWAYS | FA_WRITE | FA_READ);  // 打开文件, 可写
-   if(is_first_create)
+   //if(is_first_create || (pFileFIL->fsize < fixed_len))
+    if(is_first_create)
    {
       UINT bw = 0;
-	  
+
+      fat_printf("write sensor header: fsize = %d, is_first_create = %d \r\n",   pFileFIL->fsize,  is_first_create);
+      //pFileFIL->fsize = 0;
       // 头两行提示单位
       res = f_write(pFileFIL, SensorNameItem, os_strlen(SensorNameItem), &bw);
       res = f_write(pFileFIL, SensorUnitItem, os_strlen(SensorUnitItem), &bw);
@@ -133,7 +142,8 @@ E_RESULT FILE_Open(FIL * pFileFIL, char * file_name)
              uint16_t * num: 成功转换为数字的指针
 返回值: 转换成功返回 APP_SUCCESS; 失败返回 APP_FAILED
 */
-E_RESULT StringToInt(char * buf, char * str, uint16_t strLen, uint16_t min, uint16_t max, char ** p, uint16_t * num)
+E_RESULT StringToInt(char * buf, char * str, uint16_t strLen, 
+                                                         uint16_t min, uint16_t max, char ** p, uint16_t * num)
 {
      char * p1 = NULL;
 	 char * pEnd = NULL;
@@ -171,7 +181,44 @@ Exit:
 	return APP_FAILED;
 }
 
+/*
+功能: 在字符流中查找匹配条件的字符串
+参数: char * buf: 待查找的字符串
+             char * str: 匹配的子字符串
+             char **p: 符合匹配条件的字符串的起始指针的指针
+             uint16_t * matchStrLen: 目的字符串长度
+返回值: 转换成功返回 APP_SUCCESS; 失败返回 APP_FAILED
+*/
+E_RESULT StringToString(char * buf, char * str, char ** p, uint16_t * matchStrLen)
+{
+        char * p1 = NULL;
+	 char * pEnd = NULL;
+	 uint16_t len = 0;
+
+	 *matchStrLen = 0;
+        p1 = os_strstr((const char *)buf, str);  // 查找匹配的子字符串
+        if(p1)
+       {
+              p1 += os_strlen(str);
+              len = os_strlen(p1);
+	       if(len)
+		{
+		       pEnd = os_strchr(p1, '\"');
+		       *matchStrLen = pEnd - p1;
+		       *p = p1;
+		       return APP_SUCCESS;
+		}
+        }
+	 else 
+	 { fat_printf("p1 null: %s, %d\n", __FILE__, __LINE__); }
+	 
+//Exit:
+	*p = NULL;
+	return APP_FAILED;
+}
+
 extern uint16_t record_gap;
+
 
 #include "RTCDrv.h"
 // 读取时间配置
@@ -186,7 +233,7 @@ void FILE_ReadConfig(void)
    fat_printf("open file %s %s\n", sensor_dir, (res == FR_OK ? "ok" : "failed"));
    if(res == FR_OK)
    {
-      char buf[512];
+        char buf[512];
 	  uint32_t bytes_to_read = 0;
 	  char * p = NULL;
 	  uint16_t n;
@@ -207,7 +254,50 @@ void FILE_ReadConfig(void)
                record_gap = n;   // 改变记录间隔
             }
          }
-			 
+
+#if GIZWITS_TYPE
+	   if(! StringToString(buf,  "product_key=\"", &p, &n))
+	   {
+	             char str_buf[64];
+	             
+	            if(n < sizeof(str_buf))
+	            {
+	                  os_memset(str_buf, 0, sizeof(str_buf));
+   	                  os_memcpy(str_buf,  p,  n);
+   	                  os_memcpy(PRODUCT_KEY_STRING(),   p,  n);
+                         fat_printf("product_key = %s \r\n",  str_buf);
+                   }
+                   else
+                   {
+                         fat_printf("product key n = %d err \r\n",   n);
+                   }
+	   }
+	   else
+	   {
+                   fat_printf("read key failed %s %d \r\n",  __FILE__, __LINE__);
+	   }
+	   if(! StringToString(buf,  "product_secret=\"", &p, &n))
+	   {
+                   char str_buf[64];
+
+                   if(n < sizeof(str_buf))
+                   {
+	                 os_memset(str_buf, 0, sizeof(str_buf));
+	                 os_memcpy(str_buf,  p,  n);
+	                 os_memcpy(PRODUCT_SECRET_STRING(),  p,  n);
+                        os_printf("product_secret = %s \r\n",  str_buf);
+                   }
+                   else
+                   {
+                         fat_printf("product secret n = %d err \r\n",   n);
+                   }
+	   }
+	    else
+	   {
+                   fat_printf("read secret failed %s %d \r\n",  __FILE__, __LINE__);
+	   }
+#endif
+	   
          if(! StringToInt(buf, "action=", 7, 0, 10, &p, &n))
          {
 		     T_Calendar_Obj cal;
@@ -251,13 +341,13 @@ void FILE_ReadConfig(void)
 				 //p = os_strchr(p_action, action + 0x30);
 				 //if(p)
 				 //{
-				    char write_buf[16] = "0          ";
+				    char write_buf[] = "0";
 
 					// 将 "action=1" 改写为"action=0"
 				    if(f_lseek(&fileFIL, p_action - buf) == FR_OK) // 文件指针移到"action=" 的末尾
-	                {
-	                    f_write(&fileFIL, write_buf, sizeof(write_buf), (UINT *)&n);
-					}
+	                        {
+	                                 f_write(&fileFIL, write_buf, sizeof(write_buf), (UINT *)&n);
+				   }
 				 //}
          	 }
 			 RTCDrv_SetTime(cal.year, cal.month, cal.day, cal.hour, cal.min, cal.sec);
@@ -313,7 +403,8 @@ FRESULT FILE_Scan(
     WORD AccFiles = 0;  /* AccFiles 个file 及AccDirs 个folders */
 	DWORD AccSize = 0;				/* 文件中的字节数 */
 	char * p = NULL;
-    char * postfix = NULL;
+      char * postfix = NULL;
+      char * pfix = NULL;
 	
 #if FAT_DEBUG_EN
 	FRESULT result;
@@ -376,7 +467,8 @@ FRESULT FILE_Scan(
 				os_snprintf(filePath, filePathMaxLen, "%s/%s\r\n", path, fn);  // 文件路径最长为256 B
 				p = strstr(filePath, fileInName);
 				postfix = strstr(filePath, "bin");
-				if (p && postfix)
+				pfix = strstr(filePath, "2to1");   // 不含boot文件
+				if (p && postfix && (!pfix))
 				{
 				    
 					sys_printf("search file ok: %s\n", filePath);

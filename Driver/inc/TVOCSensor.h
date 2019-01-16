@@ -7,6 +7,7 @@
 
 
 void TVOC_Init(void);
+void TVOC_ClosePower(void);
 
 #endif
 

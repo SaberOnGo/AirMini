@@ -12,6 +12,7 @@ void SHT20_Init(void);
 
 
 void SHT20_RegConfig(uint8_t precision_mask, uint8_t is_heated);
+void SHT20_ClosePower(void);
 
 
 

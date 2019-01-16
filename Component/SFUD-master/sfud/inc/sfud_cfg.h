@@ -39,7 +39,7 @@ enum {
 	SFUD_W25Q16JV_DEVICE_INDEX = 0,
 };
 
-//#define  C99   // ÊÇ·ñÊ¹ÓÃC99, added by pi 2017-5-18
+//#define  C99   // æ˜¯å¦ä½¿ç”¨C99, added by pi 2017-5-18
 
 #ifdef C99
 #define SFUD_FLASH_DEVICE_TABLE  \

@@ -1,5 +1,5 @@
 
-/* ******************************MCU FLASH ´æ´¢½Ó¿Ú·ÃÎÊÍ·ÎÄ¼ş ********************************************/
+/* ******************************MCU FLASH å­˜å‚¨æ¥å£è®¿é—®å¤´æ–‡ä»¶ ********************************************/
 #ifndef __ROM_FLASH_INTERFACE_H__
 #define  __ROM_FLASH_INTERFACE_H__
 
@@ -8,7 +8,7 @@
 #include "diskio.h"
 #include "Integer.h"
 
-// MCU ÄÚ²¿ FLASH µÄ¿é¶¨Òå
+// MCU å†…éƒ¨ FLASH çš„å—å®šä¹‰
 #define ROM_FLASH_START_ADDR	    0x08008000	 // Flash start address
 #define ROM_FLASH_SIZE			    0x8000      // 32 K
 #define ROM_FLASH_PAGE_SIZE		    0x400		 // 1K per page

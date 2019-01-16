@@ -161,6 +161,7 @@ const sfud_flash *sfud_get_device_table(void) {
  */
 extern sfud_err sfud_spi_port_init(sfud_flash *flash);
 extern bool sfud_read_sfdp(sfud_flash *flash);
+extern void flash_set_total_capacity(uint32_t capacity);
 
 static sfud_err hardware_init(sfud_flash *flash) 
 {
@@ -248,8 +249,10 @@ static sfud_err hardware_init(sfud_flash *flash)
         if (flash_mf_name && flash->chip.name) {
             SFUD_INFO("Find a %s %s flash chip. Size is %ld bytes.", flash_mf_name, flash->chip.name,
                     flash->chip.capacity);
+             flash_set_total_capacity(flash->chip.capacity);
         } else if (flash_mf_name) {
             SFUD_INFO("Find a %s flash chip. Size is %ld bytes.", flash_mf_name, flash->chip.capacity);
+            flash_set_total_capacity(flash->chip.capacity);
         }
     }
 

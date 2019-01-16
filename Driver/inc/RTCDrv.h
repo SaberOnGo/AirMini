@@ -4,14 +4,14 @@
 
 #include "GlobalDef.h"
 
-//Ê±¼ä½á¹¹Ìå
+//æ—¶é—´ç»“æ„ä½“
 typedef struct 
 {
 	vu8 hour;
 	vu8 min;
 	vu8 sec;
 	
-	//¹«ÀúÈÕÔÂÄêÖÜ
+	//å…¬å†æ—¥æœˆå¹´å‘¨
 	vu16 year;
 	vu8  month;
 	vu8  day;

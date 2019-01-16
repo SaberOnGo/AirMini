@@ -28,8 +28,8 @@
 #define KEY_MASK    0x06  // 只有2个按键, bit2-bit1
 #define NO_KEY      0x06  // 
 
-#define KEY_1       0x04
-#define KEY_2       0x02
+#define KEY_1       0x04  // bit1 为 0, 而 KEY2 未被按下, 所以bit2 还是为1  --> 0x04
+#define KEY_2       0x02  // bit2 为 0, 而 KEY1 未被按下, 所以bit1 还是为1  --> 0x02
 
 #define FUNC_KEY    KEY_1
 #define NEXT_KEY    KEY_2

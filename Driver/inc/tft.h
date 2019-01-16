@@ -4,7 +4,7 @@
 #include "stm32f10x_conf.h"
 
 
-//ÑÕÉ«¶¨Òå
+//é¢œè‰²å®šä¹‰
 #define RED	    0XF800
 #define GREEN   0X07E0
 #define BLUE    0X001F  

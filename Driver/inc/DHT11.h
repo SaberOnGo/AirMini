@@ -4,25 +4,25 @@
 
 #include "GlobalDef.h"
 
-// DHT11 IO ¹Ü½Å -->   PB1
+// DHT11 IO ç®¡è„š -->   PB1
 #define DHT_IO_Pin         GPIO_Pin_1
 #define DHT_IO_PORT        GPIOB
 #define DHT_IO_READ()      READ_REG_32_BIT(DHT_IO_PORT->IDR, DHT_IO_Pin)   
-#define DHT_IO_H()         SET_REG_32_BIT(DHT_IO_PORT->BSRR, DHT_IO_Pin)  // Êä³ö¸ß, GPIOx->BSRR = GPIO_Pin;
-#define DHT_IO_L()         SET_REG_32_BIT(DHT_IO_PORT->BRR,  DHT_IO_Pin)  // Êä³öµÍ  GPIOx->BRR = GPIO_Pin;
+#define DHT_IO_H()         SET_REG_32_BIT(DHT_IO_PORT->BSRR, DHT_IO_Pin)  // è¾“å‡ºé«˜, GPIOx->BSRR = GPIO_Pin;
+#define DHT_IO_L()         SET_REG_32_BIT(DHT_IO_PORT->BRR,  DHT_IO_Pin)  // è¾“å‡ºä½Ž  GPIOx->BRR = GPIO_Pin;
 #define DHT_RCC_APBPeriphClockCmdEnable()       RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE)   // PCLK2 = HCLK = 48MHz
 
-// DHT ÏìÓ¦´íÎóÂë
+// DHT å“åº”é”™è¯¯ç 
 typedef enum
 {
    DHT_OK = 0,
-   DHT_INIT_OK,      // 1 ³õÊ¼»¯³É¹¦
-   DHT_NO_RESP,     // ×ÜÏßÉÏ ÎÞDHT ÏìÓ¦
-   DHT_PD_TIMEOUT,  // DHT À­µÍ³¬Ê±
-   DHT_PU_TIMEOUT,  // DHT À­¸ß³¬Ê±
-   DHT_BIT_ERR,     // DHT Êý¾ÝÎ»´íÎó
-   DHT_CHECK_ERR,  // Ð£Ñé´íÎó
-   DHT_NOT_INIT,  // »¹Î´³õÊ¼»¯
+   DHT_INIT_OK,      // 1 åˆå§‹åŒ–æˆåŠŸ
+   DHT_NO_RESP,     // æ€»çº¿ä¸Š æ— DHT å“åº”
+   DHT_PD_TIMEOUT,  // DHT æ‹‰ä½Žè¶…æ—¶
+   DHT_PU_TIMEOUT,  // DHT æ‹‰é«˜è¶…æ—¶
+   DHT_BIT_ERR,     // DHT æ•°æ®ä½é”™è¯¯
+   DHT_CHECK_ERR,  // æ ¡éªŒé”™è¯¯
+   DHT_NOT_INIT,  // è¿˜æœªåˆå§‹åŒ–
    DHT_ERR,
 }DHT_RESULT;
 

@@ -505,7 +505,7 @@ void Uart_RxToTx(uint8_t * ReadOutBuff, uint16_t MaxSize)
 	#endif
 }
 
-
+#if (! GIZWITS_TYPE)
 void Queue_UART_IRQHandler(void)
 {
 
@@ -551,4 +551,5 @@ void Queue_UART_IRQHandler(void)
    }
 #endif
 }
+#endif
 

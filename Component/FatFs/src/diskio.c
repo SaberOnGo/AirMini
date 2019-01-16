@@ -21,7 +21,7 @@ DSTATUS disk_initialize(BYTE drv)		/* Physical drive nmuber(0..) */
        #endif
 	   
 	   #if SD_DISK_EN
-	   case SD_DISK:  // SD ¿¨ 
+	   case SD_DISK:  // SD å¡ 
 	   {
 	   	   res = (SD_initialize() ? STA_NOINIT : 0);
 	   }break;
@@ -61,7 +61,7 @@ DRESULT disk_read(
 {	
     if(!count)
     {
-		return RES_PARERR; // count²»ÄÜµÈÓÚ0£¬·ñÔò·µ»Ø²ÎÊı´íÎó
+		return RES_PARERR; // countä¸èƒ½ç­‰äº0ï¼Œå¦åˆ™è¿”å›å‚æ•°é”™è¯¯
     }
 	
 	switch(drv)
@@ -109,7 +109,7 @@ DRESULT disk_write(
 {
 	if(!count)
     {
-		return RES_PARERR; // count²»ÄÜµÈÓÚ0£¬·ñÔò·µ»Ø²ÎÊı´íÎó
+		return RES_PARERR; // countä¸èƒ½ç­‰äº0ï¼Œå¦åˆ™è¿”å›å‚æ•°é”™è¯¯
     }
 	 
 	switch(drv)
@@ -205,9 +205,9 @@ DWORD get_fattime(void)
 {
 /*
  t = Time_GetCalendarTime();
-    t.tm_year -= 1980;  //Äê·İ¸ÄÎª1980ÄêÆğ
-    t.tm_mon++;          //0-11ÔÂ¸ÄÎª1-12ÔÂ
-    t.tm_sec /= 2;       //½«ÃëÊı¸ÄÎª0-29
+    t.tm_year -= 1980;  //å¹´ä»½æ”¹ä¸º1980å¹´èµ·
+    t.tm_mon++;          //0-11æœˆæ”¹ä¸º1-12æœˆ
+    t.tm_sec /= 2;       //å°†ç§’æ•°æ”¹ä¸º0-29
     
     date = 0;
     date = (t.tm_year << 25) | (t.tm_mon<<21) | (t.tm_mday<<16)|\

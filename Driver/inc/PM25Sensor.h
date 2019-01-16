@@ -51,10 +51,18 @@ typedef enum
 // AQI 计算
 typedef struct
 {
+   #if 0
    float C_low_us;     // 浓度低值, 美国标准
    float C_high_us;    // 浓度高值, 美国标准
    float C_low_cn;     // 浓度低值, 中国标准
    float C_high_cn;    // 浓度高值, 中国标准
+   #else
+   uint16_t C_low_us;     // 浓度低值, 美国标准
+   uint16_t C_high_us;    // 浓度高值, 美国标准
+   uint16_t C_low_cn;     // 浓度低值, 中国标准
+   uint16_t C_high_cn;    // 浓度高值, 中国标准
+   #endif
+   
    uint16_t I_low;     // AQI 低值
    uint16_t I_high;    // AQI 高值
 }T_AQI;
@@ -82,6 +90,9 @@ typedef struct
 }T_TempHumi;
 
 extern T_TempHumi tTempHumi;   // 温湿度值
+extern  uint16_t g_hcho_mass;
+extern uint16_t  g_pm2p5_ug;
+extern uint16_t   g_pm10_ug;
 
 #pragma pack()
 
@@ -105,8 +116,7 @@ void HCHO_CaliSet(void);
 
 //#endif
 
-void PM25_UART_IRQHandler(void);
-void HCHO_UART_IRQHandler(void);
+
 void Sensor_SubStateToNext(void);
 
 void TVOC_SetSensorExisted(uint8_t state);

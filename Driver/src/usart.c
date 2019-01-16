@@ -38,16 +38,16 @@ void USART_WIFI_Init(uint32_t baudrate)
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
     GPIO_Init(USART_WIFI_GPIO, &GPIO_InitStructure);  
 
-    //Usart1 NVIC ≈‰÷√
+    //Usart1 NVIC ÈÖçÁΩÆ
     /* Configure the NVIC Preemption Priority Bits */  
     NVIC_InitStructure.NVIC_IRQChannel = USART_WIFI_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;		
 
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQÕ®µ¿ πƒ‹
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQÈÄöÈÅì‰ΩøËÉΩ
 	NVIC_Init(&NVIC_InitStructure);	
 
-    // ¥Æø⁄Õ‚…Ë≥ı ºªØ
+    // ‰∏≤Âè£Â§ñËÆæÂàùÂßãÂåñ
     USART_InitStructure.USART_BaudRate = baudrate;
     USART_InitStructure.USART_WordLength = USART_WordLength_8b;
     USART_InitStructure.USART_StopBits = USART_StopBits_1;
@@ -56,7 +56,7 @@ void USART_WIFI_Init(uint32_t baudrate)
     USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
     USART_Init(USART_WIFI, &USART_InitStructure);
 	
-    //USART_ITConfig(USART_WIFI, USART_IT_RXNE, ENABLE);  // ‘› ±≤ª π”√÷–∂œ
+    //USART_ITConfig(USART_WIFI, USART_IT_RXNE, ENABLE);  // ÊöÇÊó∂‰∏ç‰ΩøÁî®‰∏≠Êñ≠
     //USART_ITConfig(USART_WIFI, USART_IT_TXE, ENABLE);
     
     USART_Cmd(USART_WIFI, ENABLE);                    
@@ -102,13 +102,13 @@ void USART_PM25_Init(uint32_t baudrate)
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
     GPIO_Init(USART_PM25_GPIO, &GPIO_InitStructure);
 
-	//Usart NVIC ≈‰÷√
+	//Usart NVIC ÈÖçÁΩÆ
     /* Configure the NVIC Preemption Priority Bits */  
     NVIC_InitStructure.NVIC_IRQChannel = USART_PM25_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;		
 
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQÕ®µ¿ πƒ‹
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQÈÄöÈÅì‰ΩøËÉΩ
 	NVIC_Init(&NVIC_InitStructure);	
 	
 	/* USART2 mode config */
@@ -146,13 +146,13 @@ void USART_Radio_Init(uint32_t baudrate)
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
     GPIO_Init(USART_Radio_GPIO, &GPIO_InitStructure);
 
-	//Usart NVIC ≈‰÷√
+	//Usart NVIC ÈÖçÁΩÆ
     /* Configure the NVIC Preemption Priority Bits */  
     NVIC_InitStructure.NVIC_IRQChannel = USART_PM25_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;		
 
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQÕ®µ¿ πƒ‹
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQÈÄöÈÅì‰ΩøËÉΩ
 	NVIC_Init(&NVIC_InitStructure);	
 
 	
@@ -174,7 +174,7 @@ void USART_Radio_Init(uint32_t baudrate)
 // ISR
 void USART_PM25_ISR(void)
 {
-  if(USART_GetITStatus(USART_PM25, USART_IT_RXNE))  // Ω” ’∑«ø’
+  if(USART_GetITStatus(USART_PM25, USART_IT_RXNE))  // Êé•Êî∂ÈùûÁ©∫
   {
     /* Read one byte from the receive data register */
     RxBuffer1[RxCounter1++] = USART_ReceiveData(USART_PM25);
@@ -186,7 +186,7 @@ void USART_PM25_ISR(void)
     }
   }
   
-  if(USART_GetITStatus(USART_PM25, USART_IT_TXE))  // ∑¢ÀÕºƒ¥Ê∆˜ø’
+  if(USART_GetITStatus(USART_PM25, USART_IT_TXE))  // ÂèëÈÄÅÂØÑÂ≠òÂô®Á©∫
   {   
     /* Write one byte to the transmit data register */
     USART_SendData(USARTy, TxBuffer1[TxCounter1++]);

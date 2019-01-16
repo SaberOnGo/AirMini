@@ -101,6 +101,7 @@ void FLASH_SAVE Sys_DelayMs(uint32_t ms);
 E_BOOL FLASH_SAVE Sys_IsBigEndian(void);
 E_RESULT Sys_GetVersion(uint8_t *outString, int16_t stringSize, E_VERION_TYPE index);
 void JumpToBootloader(void);
+uint8_t sys_gen_sum_8(uint8_t * buf,  uint16_t len);
 uint32_t Sys_GenSum32(void * data, uint32_t length);
 
 

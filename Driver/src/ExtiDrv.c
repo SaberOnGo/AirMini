@@ -14,24 +14,25 @@
 #define EXT_DEBUG(...)
 #endif
 
-uint8_t battery_is_charging = 0; // µç³ØÊÇ·ñÕýÔÚ³äµç, ¸ß4Î»±íÊ¾: USBÊÇ·ñ²åÈë; µÍ 4Î»±íÊ¾: µç³ØÊÇ·ñÔÚ³äµç
+uint8_t battery_is_charging = 0; // ç”µæ± æ˜¯å¦æ­£åœ¨å……ç”µ, é«˜4ä½è¡¨ç¤º: USBæ˜¯å¦æ’å…¥; ä½Ž 4ä½è¡¨ç¤º: ç”µæ± æ˜¯å¦åœ¨å……ç”µ
 
-static os_timer_t tExtiCheckTimer;   // Íâ²¿ÖÐ¶ÏÑÓÊ±¼ì²â¶¨Ê±Æ÷
+static os_timer_t tExtiCheckTimer;   // å¤–éƒ¨ä¸­æ–­å»¶æ—¶æ£€æµ‹å®šæ—¶å™¨
 static void ExtiCheckTimer_CallBack(void * arg)
 {
-    if(VIN_DETECT_Read())		// µ±Ç°Îª¸ßµçÆ½, ËµÃ÷ÊÇÉÏÉýÑØ
+    if(VIN_DETECT_Read())		// å½“å‰ä¸ºé«˜ç”µå¹³, è¯´æ˜Žæ˜¯ä¸Šå‡æ²¿
 	{
 		EXT_DEBUG("usb pluged\n");
 		battery_is_charging |= USB_PLUGED_MASK;
 		if(is_5v_power_close)
 		{
-		        JumpToBootloader();
+		       // JumpToBootloader();
+		        AppInit();
 				is_5v_power_close = E_FALSE;
 		}
 		else 
-			FILE_SearchUpdateBinFile(); // ËÑË÷binÎÄ¼þ, ·ûºÏÌõ¼þÔòÉý¼¶
+			FILE_SearchUpdateBinFile(); // æœç´¢binæ–‡ä»¶, ç¬¦åˆæ¡ä»¶åˆ™å‡çº§
 	}
-	else  // µ±Ç°ÊÇµÍµçÆ½, ËµÃ÷ÊÇÏÂ½µÑØ
+	else  // å½“å‰æ˜¯ä½Žç”µå¹³, è¯´æ˜Žæ˜¯ä¸‹é™æ²¿
 	{
 	   EXT_DEBUG("usb unpluged\n");
 	   battery_is_charging = 0;
@@ -50,7 +51,7 @@ void ExtiDrv_Init(void)
 
 	 os_timer_setfn(&tExtiCheckTimer, ExtiCheckTimer_CallBack, NULL);
 	 
-	 // Ê¹ÄÜ IO Ê±ÖÓ
+	 // ä½¿èƒ½ IO æ—¶é’Ÿ
 	 VIN_DETECT_RCC_APBPeriphClockCmdEnable();
 	 
 	 GPIO_InitStructure.GPIO_Pin  = VIN_DETECT_Pin;
@@ -61,9 +62,9 @@ void ExtiDrv_Init(void)
 	 /* Enable AFIO clock */
 	// RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
    
-	 /* Connect EXTIn Íâ²¿ÖÐ¶ÏÏßµ½ IO ¹Ü½Å  */
+	 /* Connect EXTIn å¤–éƒ¨ä¸­æ–­çº¿åˆ° IO ç®¡è„š  */
 	 GPIO_EXTILineConfig(VIN_DETECT_PortSource, VIN_DETECT_PinSource);
-     STM32_EXTI_ClearITPendingBit(EXTI_Line_VinDetect);  // Çå³ýÖÐ¶Ï±êÖ¾Î»
+     STM32_EXTI_ClearITPendingBit(EXTI_Line_VinDetect);  // æ¸…é™¤ä¸­æ–­æ ‡å¿—ä½
 
 	 
 	 /* Configure EXTI0 line */
@@ -74,33 +75,33 @@ void ExtiDrv_Init(void)
 	 EXTI_Init(&EXTI_InitStructure);
    
 	 /* Enable and set EXTI0 Interrupt to the lowest priority */
-	 STM32_NVICInit(EXTI_VinDetect_IRQn,3, 6, 1);	 // µÚ3×éÓÅÏÈ¼¶, 3Î»ÇÀÕ¼ÓÅÏÈ¼¶, 1Î»ÏìÓ¦ÓÅÏÈ¼¶
+	 STM32_NVICInit(EXTI_VinDetect_IRQn,3, 6, 1);	 // ç¬¬3ç»„ä¼˜å…ˆçº§, 3ä½æŠ¢å ä¼˜å…ˆçº§, 1ä½å“åº”ä¼˜å…ˆçº§
 }
 
-//Íâ²¿ÖÐ¶Ï7·þÎñ³ÌÐò 
+//å¤–éƒ¨ä¸­æ–­7æœåŠ¡ç¨‹åº 
 void EXTI9_5_IRQHandler(void)
 {
-    CLEAR_REG_32_BIT(EXTI->IMR, EXTI_Line_VinDetect);  // ½ûÖ¹Íâ²¿ÖÐ¶Ï
+    CLEAR_REG_32_BIT(EXTI->IMR, EXTI_Line_VinDetect);  // ç¦æ­¢å¤–éƒ¨ä¸­æ–­
     
-    if(READ_REG_32_BIT(EXTI->PR, EXTI_Line_VinDetect))  // PA7 ¹Ü½ÅµÄÖÐ¶Ï
+    if(READ_REG_32_BIT(EXTI->PR, EXTI_Line_VinDetect))  // PA7 ç®¡è„šçš„ä¸­æ–­
     {
 
-		if(VIN_DETECT_Read())		// µ±Ç°Îª¸ßµçÆ½, ËµÃ÷ÊÇÉÏÉýÑØ
+		if(VIN_DETECT_Read())		// å½“å‰ä¸ºé«˜ç”µå¹³, è¯´æ˜Žæ˜¯ä¸Šå‡æ²¿
 		{
 		    EXT_DEBUG("VD Rise\r\n");
 		}
-		else  // µ±Ç°ÊÇµÍµçÆ½, ËµÃ÷ÊÇÏÂ½µÑØ
+		else  // å½“å‰æ˜¯ä½Žç”µå¹³, è¯´æ˜Žæ˜¯ä¸‹é™æ²¿
 		{
 		    EXT_DEBUG("VD Fall\r\n");
 		}
-		os_timer_arm(&tExtiCheckTimer, 1, 0);  // ÑÓÊ± 10 ms ¼ì²â
+		os_timer_arm(&tExtiCheckTimer, 1, 0);  // å»¶æ—¶ 10 ms æ£€æµ‹
 
 		#if 0
-		EXTI_ClearITPendingBit(EXTI_Line_VinDetect); //Çå³ýLINE0ÉÏµÄÖÐ¶Ï±êÖ¾Î»  
+		EXTI_ClearITPendingBit(EXTI_Line_VinDetect); //æ¸…é™¤LINE0ä¸Šçš„ä¸­æ–­æ ‡å¿—ä½  
 		#else
-        EXTI->PR = EXTI_Line_VinDetect; // Íù¹ÒÆðÎ»Ð´ 1 ÇåÖÐ¶Ï±êÖ¾
+        EXTI->PR = EXTI_Line_VinDetect; // å¾€æŒ‚èµ·ä½å†™ 1 æ¸…ä¸­æ–­æ ‡å¿—
 		#endif
     }
-	SET_REG_32_BIT(EXTI->IMR, EXTI_Line_VinDetect);  // Ê¹ÄÜÍâ²¿ÖÐ¶Ï
+	SET_REG_32_BIT(EXTI->IMR, EXTI_Line_VinDetect);  // ä½¿èƒ½å¤–éƒ¨ä¸­æ–­
 }
 

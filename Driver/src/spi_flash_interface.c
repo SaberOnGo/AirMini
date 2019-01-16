@@ -176,5 +176,16 @@ uint16_t flash_mal_read(uint8_t lun, uint32_t addr, uint32_t * buffer, uint16_t 
 	return sfud_read(flash, SPI_FLASH_START_ADDR + addr, bytes, (uint8_t *)buffer);
 }
 
+uint32_t spi_flash_capacity = FL_SIZE_KB(4096);   // W25Q16
+
+void flash_set_total_capacity(uint32_t capacity)
+{
+      spi_flash_capacity = capacity;
+      os_printf("flash capacity = %ld B\r\n", capacity);
+}
+uint32_t flash_get_total_capacity(void)
+{
+     return spi_flash_capacity;
+}
 
 

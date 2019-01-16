@@ -6,8 +6,8 @@
 
 
 /*****************************************
-¹¦ÄÜ: ¿ØÖÆLCD µçÔ´Êä³ö
-²ÎÊı: CTRL_OPEN: ´ò¿ª;  CTRL_CLOSE: ¹Ø±Õ´Ë¿ª¹Ø
+åŠŸèƒ½: æ§åˆ¶LCD ç”µæºè¾“å‡º
+å‚æ•°: CTRL_OPEN: æ‰“å¼€;  CTRL_CLOSE: å…³é—­æ­¤å¼€å…³
 
 ****************************************/
 void LCD_Ctrl_Set(E_SW_STATE sta)
@@ -22,9 +22,9 @@ void LCD_Ctrl_Set(E_SW_STATE sta)
 	    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_Out_PP;
 		STM32_GPIOInit(LCD_Power_Ctrl_PORT, &GPIO_InitStructure);
 		
-		LCD_Power_Ctrl_L();  // PMOS¹Ü µÍµçÆ½µ¼Í¨
+		LCD_Power_Ctrl_L();  // PMOSç®¡ ä½ç”µå¹³å¯¼é€š
 	}
-	else // ÉèÖÃÎª¸¡¿ÕÊäÈë, µçÔ´ÉÏÀ­Îª¸ßµçÆ½, PMOS¹Ü¹Ø±Õ
+	else // è®¾ç½®ä¸ºæµ®ç©ºè¾“å…¥, ç”µæºä¸Šæ‹‰ä¸ºé«˜ç”µå¹³, PMOSç®¡å…³é—­
 	{
 	   GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IN_FLOATING;
 	   STM32_GPIOInit(LCD_Power_Ctrl_PORT, &GPIO_InitStructure);
@@ -48,17 +48,17 @@ void BAT_CE_Set(E_SW_STATE sta)
 	    GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_Out_PP;
         STM32_GPIOInit(BAT_CE_PORT, &GPIO_InitStructure);
 		
-		BAT_CE_L();  // ½ûÖ¹µç³Ø³äµç
+		BAT_CE_L();  // ç¦æ­¢ç”µæ± å……ç”µ
 	}
 }
 
-// ÉèÖÃÊı¾İ¿ÚÎªÊäÈë»òÊä³ö
-// °å¼¶¹Ü½Å³õÊ¼»¯
+// è®¾ç½®æ•°æ®å£ä¸ºè¾“å…¥æˆ–è¾“å‡º
+// æ¿çº§ç®¡è„šåˆå§‹åŒ–
 void Board_GpioInit(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
 
-    // Ê±ÖÓÊ¹ÄÜ
+    // æ—¶é’Ÿä½¿èƒ½
 	STM32_RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC, ENABLE);
 	
     // XR1151 5V EN  
@@ -69,20 +69,20 @@ void Board_GpioInit(void)
 	
 	XR1151_EN_Open();
 
-	// PWR_SW, 3.3VÎÈÑ¹Æ÷¿ª¹Ø
+	// PWR_SW, 3.3Vç¨³å‹å™¨å¼€å…³
 	GPIO_InitStructure.GPIO_Pin   = PWR_SW_Pin;
     STM32_GPIOInit(PWR_SW_PORT, &GPIO_InitStructure);
 	
 	//PWR_SW_Close();
 	PWR_SW_Open();
 
-	// LCD_Power, ÆÁÄ»µçÔ´¿ª¹Ø
+	// LCD_Power, å±å¹•ç”µæºå¼€å…³
 	LCD_Ctrl_Set(SW_OPEN);
 	
-    // µç³Ø³äµç¿ØÖÆ¹Ü½Å
-	BAT_CE_Set(SW_OPEN);  // Ä¬ÈÏ´ò¿ª³äµç
+    // ç”µæ± å……ç”µæ§åˆ¶ç®¡è„š
+	BAT_CE_Set(SW_OPEN);  // é»˜è®¤æ‰“å¼€å……ç”µ
     
-    // µç³Ø³äµç¼ì²â¹Ü½Å
+    // ç”µæ± å……ç”µæ£€æµ‹ç®¡è„š
     GPIO_InitStructure.GPIO_Pin   = CHRG_Indicate_Pin;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IPU;

@@ -21,7 +21,7 @@ void PowerCtrl_LowerPower(void)
    STM32_RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD | RCC_APB2Periph_AFIO
 		                            | RCC_APB2Periph_ADC1 | RCC_APB2Periph_USART1, DISABLE);
    STM32_RCC_APB1PeriphClockCmd(RCC_APB1Periph_USB | RCC_APB1Periph_USART3| RCC_APB1Periph_SPI2, DISABLE);
-   STM32_RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, DISABLE);
+  // STM32_RCC_APB1PeriphClockCmd(RCC_APB1Periph_PWR | RCC_APB1Periph_BKP, DISABLE);
    #endif
    
    USART1->CR1 &=~ USART_CR1_UE;
@@ -43,7 +43,7 @@ void PowerCtrl_ResumePower(void)
    GLOBAL_DISABLE_IRQ();
    RCC_DeInit();		
    SysClockConfig();
-   SysTick_Config(SystemCoreClock / 100);  // 10 ms ÖÐ¶ÏÒ»´Î
+   SysTick_Config(SystemCoreClock / 100);  // 10 ms ä¸­æ–­ä¸€æ¬¡
 
    #if 0
    STM32_RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC

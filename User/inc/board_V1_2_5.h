@@ -4,19 +4,19 @@
 #ifndef __BOARD_V1_2_5_H__
 #define  __BOARD_V1_2_5_H__
 /**************************************************************************************
-Ö÷°å¹Ü½Å¶¨ÒåÎÄ¼ş
-Ö÷°åÓ²¼ş°æ±¾: V1.1.2.5
-ÈÕÆÚ: 2017-11-11
-Ó²¼ş: GD32F103C8T6 LQFP 48,
-             LCD1602, ¼×È©´«¸ĞÆ÷, SHT20,TVOC´«¸ĞÆ÷, PMS5003(¿ÉÑ¡)
-OS:      None, Èí¼ş¶¨Ê±Æ÷
-¹¦ÄÜ: 
+ä¸»æ¿ç®¡è„šå®šä¹‰æ–‡ä»¶
+ä¸»æ¿ç¡¬ä»¶ç‰ˆæœ¬: V1.1.2.5
+æ—¥æœŸ: 2017-11-11
+ç¡¬ä»¶: GD32F103C8T6 LQFP 48,
+             LCD1602, ç”²é†›ä¼ æ„Ÿå™¨, SHT20,TVOCä¼ æ„Ÿå™¨, PMS5003(å¯é€‰)
+OS:      None, è½¯ä»¶å®šæ—¶å™¨
+åŠŸèƒ½: 
 **************************************************************************************/
 
 #include "GlobalDef.h"
 #include "stm32f10x.h"
 
-// PM2.5 ĞİÃßÊ¹ÄÜ¿ØÖÆ¹Ü½Å, ¸ßµçÆ½Õı³£¹¤×÷
+// PM2.5 ä¼‘çœ ä½¿èƒ½æ§åˆ¶ç®¡è„š, é«˜ç”µå¹³æ­£å¸¸å·¥ä½œ
 // PM25_SET  ->  
 #define PM25_SET_Pin         
 #define PM25_SET_PORT        
@@ -25,31 +25,31 @@ OS:      None, Èí¼ş¶¨Ê±Æ÷
 #define PM25_SET_RCC_APBPeriphClockCmdEnable()    
 
 
-// XR1151 EN ->  PA4, ¸ßµçÆ½Ê¹ÄÜ
+// XR1151 EN ->  PA4, é«˜ç”µå¹³ä½¿èƒ½
 #define XR1151_EN_Pin             GPIO_Pin_4
 #define XR1151_EN_PORT            GPIOA
-#define XR1151_EN_Open()          SET_REG_32_BIT(XR1151_EN_PORT->BSRR, XR1151_EN_Pin)  // Êä³ö¸ß, GPIOx->BSRR = GPIO_Pin;
-#define XR1151_EN_Close()         SET_REG_32_BIT(XR1151_EN_PORT->BRR,  XR1151_EN_Pin)  // Êä³öµÍ  GPIOx->BRR = GPIO_Pin;
+#define XR1151_EN_Open()          SET_REG_32_BIT(XR1151_EN_PORT->BSRR, XR1151_EN_Pin)  // è¾“å‡ºé«˜, GPIOx->BSRR = GPIO_Pin;
+#define XR1151_EN_Close()         SET_REG_32_BIT(XR1151_EN_PORT->BRR,  XR1151_EN_Pin)  // è¾“å‡ºä½  GPIOx->BRR = GPIO_Pin;
 #define XR1151_EN_RCC_APBPeriphClockCmdEnable()      SET_REG_32_BIT(RCC->APB2ENR, RCC_APB2Periph_GPIOA)  // PCLK2 = HCLK = 48MHz
 
-// CHRG_Indicate -> PA5  ³äµç×´Ì¬Ö¸Ê¾¹Ü½Å, ¶Á¸Ã¹Ü½Å×´Ì¬, µÍµçÆ½: ÕıÔÚ³äµç; ¸ß×èÌ¬: Ã»ÓĞÔÚ³äµç 
+// CHRG_Indicate -> PA5  å……ç”µçŠ¶æ€æŒ‡ç¤ºç®¡è„š, è¯»è¯¥ç®¡è„šçŠ¶æ€, ä½ç”µå¹³: æ­£åœ¨å……ç”µ; é«˜é˜»æ€: æ²¡æœ‰åœ¨å……ç”µ 
 #define CHRG_Indicate_Pin      GPIO_Pin_5
 #define CHRG_Indicate_PORT     GPIOA
-#define CHRG_Indicate_Open()   SET_REG_32_BIT(CHRG_Indicate_PORT->BSRR, CHRG_Indicate_Pin)  // Êä³ö¸ß, GPIOx->BSRR = GPIO_Pin;
-#define CHRG_Indicate_Close()  SET_REG_32_BIT(CHRG_Indicate_PORT->BRR,  CHRG_Indicate_Pin)  // Êä³öµÍ  GPIOx->BRR = GPIO_Pin;
+#define CHRG_Indicate_Open()   SET_REG_32_BIT(CHRG_Indicate_PORT->BSRR, CHRG_Indicate_Pin)  // è¾“å‡ºé«˜, GPIOx->BSRR = GPIO_Pin;
+#define CHRG_Indicate_Close()  SET_REG_32_BIT(CHRG_Indicate_PORT->BRR,  CHRG_Indicate_Pin)  // è¾“å‡ºä½  GPIOx->BRR = GPIO_Pin;
 #define CHRG_Indicate_RCC_APBPeriphClockCmdEnable()       SET_REG_32_BIT(RCC->APB2ENR, RCC_APB2Periph_GPIOA)  // PCLK2 = HCLK = 48MHz
 #define CHRG_Indicate_Read()   STM32_GPIO_ReadInputDataBit(CHRG_Indicate_PORT, CHRG_Indicate_Pin)   // GPIO_ReadInputDataBit(LCD_DATA_PORT, GPIO_Pin_4)
 
 
-// LCD_Power_Ctrl -> PB10  IO Êä³ö¸ßµçÆ½µ¼Í¨
+// LCD_Power_Ctrl -> PB10  IO è¾“å‡ºé«˜ç”µå¹³å¯¼é€š
 #define LCD_Power_Ctrl_Pin      GPIO_Pin_10
 #define LCD_Power_Ctrl_PORT     GPIOB
-#define LCD_Power_Ctrl_H()      SET_REG_32_BIT(LCD_Power_Ctrl_PORT->BSRR, LCD_Power_Ctrl_Pin)  // Êä³ö¸ß, GPIOx->BSRR = GPIO_Pin;
-#define LCD_Power_Ctrl_L()      SET_REG_32_BIT(LCD_Power_Ctrl_PORT->BRR,  LCD_Power_Ctrl_Pin)  // Êä³öµÍ  GPIOx->BRR = GPIO_Pin;
+#define LCD_Power_Ctrl_H()      SET_REG_32_BIT(LCD_Power_Ctrl_PORT->BSRR, LCD_Power_Ctrl_Pin)  // è¾“å‡ºé«˜, GPIOx->BSRR = GPIO_Pin;
+#define LCD_Power_Ctrl_L()      SET_REG_32_BIT(LCD_Power_Ctrl_PORT->BRR,  LCD_Power_Ctrl_Pin)  // è¾“å‡ºä½  GPIOx->BRR = GPIO_Pin;
 #define LCD_Power_Ctrl_RCC_APBPeriphClockCmdEnable()       SET_REG_32_BIT(RCC->APB2ENR, RCC_APB2Periph_GPIOB)   // PCLK2 = HCLK = 48MHz
 
 
-// VIN_DETECT -> P7  USBµçÔ´²åÈë¶ÁÈ¡¹Ü½Å, ¸ßµçÆ½: USB 5V µçÔ´²åÈë; µÍµçÆ½: USB µçÔ´Ã»ÓĞ²åÈë
+// VIN_DETECT -> P7  USBç”µæºæ’å…¥è¯»å–ç®¡è„š, é«˜ç”µå¹³: USB 5V ç”µæºæ’å…¥; ä½ç”µå¹³: USB ç”µæºæ²¡æœ‰æ’å…¥
 #define VIN_DETECT_Pin         GPIO_Pin_7
 #define VIN_DETECT_PORT        GPIOA
 #define VIN_DETECT_PinSource   GPIO_PinSource7
@@ -57,12 +57,12 @@ OS:      None, Èí¼ş¶¨Ê±Æ÷
 #define EXTI_Line_VinDetect    EXTI_Line7
 #define EXTI_VinDetect_IRQn    EXTI9_5_IRQn
 
-#define VIN_DETECT_Open()   SET_REG_32_BIT(VIN_DETECT_PORT->BSRR, VIN_DETECT_Pin)  // Êä³ö¸ß, GPIOx->BSRR = GPIO_Pin;
-#define VIN_DETECT_Close()  SET_REG_32_BIT(VIN_DETECT_PORT->BRR,  VIN_DETECT_Pin)  // Êä³öµÍ  GPIOx->BRR = GPIO_Pin;
+#define VIN_DETECT_Open()   SET_REG_32_BIT(VIN_DETECT_PORT->BSRR, VIN_DETECT_Pin)  // è¾“å‡ºé«˜, GPIOx->BSRR = GPIO_Pin;
+#define VIN_DETECT_Close()  SET_REG_32_BIT(VIN_DETECT_PORT->BRR,  VIN_DETECT_Pin)  // è¾“å‡ºä½  GPIOx->BRR = GPIO_Pin;
 #define VIN_DETECT_RCC_APBPeriphClockCmdEnable()       SET_REG_32_BIT(RCC->APB2ENR, RCC_APB2Periph_GPIOA)   // PCLK2 = HCLK = 48MHz
 #define VIN_DETECT_Read()    STM32_GPIO_ReadInputDataBit(VIN_DETECT_PORT, VIN_DETECT_Pin)   // GPIO_ReadInputDataBit(LCD_DATA_PORT, GPIO_Pin_4)
 
-// °´¼ü¹Ü½Å¶¨Òå -------------------------------------begin------------------------------*/
+// æŒ‰é”®ç®¡è„šå®šä¹‰ -------------------------------------begin------------------------------*/
 #define KEY1_PORT      GPIOB
 #define KEY1_GPIO_Pin  GPIO_Pin_0
 
@@ -83,83 +83,83 @@ OS:      None, Èí¼ş¶¨Ê±Æ÷
 //#define KEY3_INPUT   ((READ_REG_32_BIT(KEY3_PORT->IDR, KEY3_GPIO_Pin)) << 3)
 
 #define KEY_INPUT  ((uint8_t)((KEY1_INPUT) |(KEY2_INPUT) ))
-// °´¼ü¹Ü½Å¶¨Òå -------------------------------------end------------------------------*/
+// æŒ‰é”®ç®¡è„šå®šä¹‰ -------------------------------------end------------------------------*/
 
-// RT9193 µçÔ´Ê¹ÄÜ¿ØÖÆ¹Ü½Å, ÉÏÉıÑØÊ¹ÄÜ
+// RT9193 ç”µæºä½¿èƒ½æ§åˆ¶ç®¡è„š, ä¸Šå‡æ²¿ä½¿èƒ½
 // PWR_SW  ->  PA8
 #define PWR_SW_Pin          GPIO_Pin_8
 #define PWR_SW_PORT         GPIOA
-#define PWR_SW_Open()       SET_REG_32_BIT(PWR_SW_PORT->BSRR, PWR_SW_Pin)  // Êä³ö¸ß, GPIOx->BSRR = GPIO_Pin;
-#define PWR_SW_Close()      SET_REG_32_BIT(PWR_SW_PORT->BRR,  PWR_SW_Pin)  // Êä³öµÍ  GPIOx->BRR = GPIO_Pin;
+#define PWR_SW_Open()       SET_REG_32_BIT(PWR_SW_PORT->BSRR, PWR_SW_Pin)  // è¾“å‡ºé«˜, GPIOx->BSRR = GPIO_Pin;
+#define PWR_SW_Close()      SET_REG_32_BIT(PWR_SW_PORT->BRR,  PWR_SW_Pin)  // è¾“å‡ºä½  GPIOx->BRR = GPIO_Pin;
 #define PWR_SW_RCC_APBPeriphClockCmdEnable()       SET_REG_32_BIT(RCC->APB2ENR, RCC_APB2Periph_GPIOA)    // PCLK2 = HCLK = 48MHz
 
 
-// TP4056 µç³Ø³äµç¹Ü½ÅÊ¹ÄÜ¿ØÖÆ¹Ü½Å, ¸ßµçÆ½: Õı³£¹¤×÷; µÍµçÆ½: ½ûÖ¹³äµç
+// TP4056 ç”µæ± å……ç”µç®¡è„šä½¿èƒ½æ§åˆ¶ç®¡è„š, é«˜ç”µå¹³: æ­£å¸¸å·¥ä½œ; ä½ç”µå¹³: ç¦æ­¢å……ç”µ
 // BAT_CE  ->  PA9
 #define BAT_CE_Pin          GPIO_Pin_9
 #define BAT_CE_PORT         GPIOA
-#define BAT_CE_Open()       SET_REG_32_BIT(BAT_CE_PORT->BSRR, BAT_CE_Pin)  // Êä³ö¸ß, GPIOx->BSRR = GPIO_Pin;
-#define BAT_CE_Close()      SET_REG_32_BIT(BAT_CE_PORT->BRR,  BAT_CE_Pin)  // Êä³öµÍ  GPIOx->BRR = GPIO_Pin;
-#define BAT_CE_H()          SET_REG_32_BIT(BAT_CE_PORT->BSRR, BAT_CE_Pin)  // Êä³ö¸ß, GPIOx->BSRR = GPIO_Pin;
-#define BAT_CE_L()          SET_REG_32_BIT(BAT_CE_PORT->BRR,  BAT_CE_Pin)  // Êä³öµÍ  GPIOx->BRR = GPIO_Pin;
+#define BAT_CE_Open()       SET_REG_32_BIT(BAT_CE_PORT->BSRR, BAT_CE_Pin)  // è¾“å‡ºé«˜, GPIOx->BSRR = GPIO_Pin;
+#define BAT_CE_Close()      SET_REG_32_BIT(BAT_CE_PORT->BRR,  BAT_CE_Pin)  // è¾“å‡ºä½  GPIOx->BRR = GPIO_Pin;
+#define BAT_CE_H()          SET_REG_32_BIT(BAT_CE_PORT->BSRR, BAT_CE_Pin)  // è¾“å‡ºé«˜, GPIOx->BSRR = GPIO_Pin;
+#define BAT_CE_L()          SET_REG_32_BIT(BAT_CE_PORT->BRR,  BAT_CE_Pin)  // è¾“å‡ºä½  GPIOx->BRR = GPIO_Pin;
 #define BAT_CE_RCC_APBPeriphClockCmdEnable()       SET_REG_32_BIT(RCC->APB2ENR, RCC_APB2Periph_GPIOA)    // PCLK2 = HCLK = 48MHz
 #define BAT_CE_Read()       STM32_GPIO_ReadInputDataBit(BAT_CE_PORT, BAT_CE_Pin) 
 
 
-/*----------------------I2C Ó²¼ş¹Ü½Å¶¨Òå begin ----------------*/
+/*----------------------I2C ç¡¬ä»¶ç®¡è„šå®šä¹‰ begin ----------------*/
 // IIC_SDA -> PB7  
 #define IIC_SDA_Pin       GPIO_Pin_7
 #define IIC_SDA_PORT      GPIOB
-#define IIC_SDA_H()       SET_REG_32_BIT(IIC_SDA_PORT->BSRR, IIC_SDA_Pin)  // Êä³ö¸ß, GPIOx->BSRR = GPIO_Pin;
-#define IIC_SDA_L()       SET_REG_32_BIT(IIC_SDA_PORT->BRR,  IIC_SDA_Pin)  // Êä³öµÍ  GPIOx->BRR = GPIO_Pin;
-#define IIC_SDA_READ()    READ_REG_32_BIT(IIC_SDA_PORT->IDR, IIC_SDA_Pin)  
+#define IIC_SDA_H()       SET_REG_32_BIT(IIC_SDA_PORT->BSRR, IIC_SDA_Pin)  // è¾“å‡ºé«˜, GPIOx->BSRR = GPIO_Pin;
+#define IIC_SDA_L()       SET_REG_32_BIT(IIC_SDA_PORT->BRR,  IIC_SDA_Pin)  // è¾“å‡ºä½  GPIOx->BRR = GPIO_Pin;
+#define IIC_SDA_READ()    ( (IIC_SDA_PORT->IDR &IIC_SDA_Pin) ? 1 : 0)
 
 // IIC_SCL -> PB6
 #define IIC_SCL_Pin       GPIO_Pin_6
 #define IIC_SCL_PORT      GPIOB
-#define IIC_SCL_H()       SET_REG_32_BIT(IIC_SCL_PORT->BSRR, IIC_SCL_Pin)  // Êä³ö¸ß, GPIOx->BSRR = GPIO_Pin;
-#define IIC_SCL_L()       SET_REG_32_BIT(IIC_SCL_PORT->BRR,  IIC_SCL_Pin)  // Êä³öµÍ  GPIOx->BRR = GPIO_Pin;
+#define IIC_SCL_H()       SET_REG_32_BIT(IIC_SCL_PORT->BSRR, IIC_SCL_Pin)  // è¾“å‡ºé«˜, GPIOx->BSRR = GPIO_Pin;
+#define IIC_SCL_L()       SET_REG_32_BIT(IIC_SCL_PORT->BRR,  IIC_SCL_Pin)  // è¾“å‡ºä½  GPIOx->BRR = GPIO_Pin;
 #define IIC_APBPeriphClockCmdEnable()       SET_REG_32_BIT(RCC->APB2ENR, RCC_APB2Periph_GPIOB)    // PCLK2 = HCLK = 48MHz
 
 #define IIC_BUS_PORT      GPIOB
-/*----------------------I2C Ó²¼ş¹Ü½Å¶¨Òå end ----------------*/
+/*----------------------I2C ç¡¬ä»¶ç®¡è„šå®šä¹‰ end ----------------*/
 
-// LED À¶µÆ¿ØÖÆ¹Ü½Å
+// LED è“ç¯æ§åˆ¶ç®¡è„š
 // LED_Blue  ->  PA6
 #define LED_Blue_Pin          GPIO_Pin_6
 #define LED_Blue_PORT         GPIOA
-#define LED_Blue_Open()       SET_REG_32_BIT(LED_Blue_PORT->BSRR, LED_Blue_Pin)  // Êä³ö¸ß, GPIOx->BSRR = GPIO_Pin;
-#define LED_Blue_Close()      SET_REG_32_BIT(LED_Blue_PORT->BRR,  LED_Blue_Pin)  // Êä³öµÍ  GPIOx->BRR = GPIO_Pin;
+#define LED_Blue_Open()       SET_REG_32_BIT(LED_Blue_PORT->BSRR, LED_Blue_Pin)  // è¾“å‡ºé«˜, GPIOx->BSRR = GPIO_Pin;
+#define LED_Blue_Close()      SET_REG_32_BIT(LED_Blue_PORT->BRR,  LED_Blue_Pin)  // è¾“å‡ºä½  GPIOx->BRR = GPIO_Pin;
 #define LED_Blue_RCC_APBPeriphClockCmdEnable()       SET_REG_32_BIT(RCC->APB2ENR, RCC_APB2Periph_GPIOA)   // PCLK2 = HCLK = 48MHz
 
-// LED ÂÌµÆ¿ØÖÆ¹Ü½Å
+// LED ç»¿ç¯æ§åˆ¶ç®¡è„š
 // LED_Green  ->  PA2
 #define LED_Green_Pin          GPIO_Pin_2
 #define LED_Green_PORT         GPIOA
-#define LED_Green_Open()       SET_REG_32_BIT(LED_Green_PORT->BSRR, LED_Green_Pin)  // Êä³ö¸ß, GPIOx->BSRR = GPIO_Pin;
-#define LED_Green_Close()      SET_REG_32_BIT(LED_Green_PORT->BRR,  LED_Green_Pin)  // Êä³öµÍ  GPIOx->BRR = GPIO_Pin;
+#define LED_Green_Open()       SET_REG_32_BIT(LED_Green_PORT->BSRR, LED_Green_Pin)  // è¾“å‡ºé«˜, GPIOx->BSRR = GPIO_Pin;
+#define LED_Green_Close()      SET_REG_32_BIT(LED_Green_PORT->BRR,  LED_Green_Pin)  // è¾“å‡ºä½  GPIOx->BRR = GPIO_Pin;
 #define LED_Green_RCC_APBPeriphClockCmdEnable()       SET_REG_32_BIT(RCC->APB2ENR, RCC_APB2Periph_GPIOA)   // PCLK2 = HCLK = 48MHz
 
-// LED ºìµÆ¿ØÖÆ¹Ü½Å
+// LED çº¢ç¯æ§åˆ¶ç®¡è„š
 // LED_Red  ->  PA1
 #define LED_Red_Pin          GPIO_Pin_1
 #define LED_Red_PORT         GPIOA
-#define LED_Red_Open()       SET_REG_32_BIT(LED_Red_PORT->BSRR, LED_Red_Pin)  // Êä³ö¸ß, GPIOx->BSRR = GPIO_Pin;
-#define LED_Red_Close()      SET_REG_32_BIT(LED_Red_PORT->BRR,  LED_Red_Pin)  // Êä³öµÍ  GPIOx->BRR = GPIO_Pin;
+#define LED_Red_Open()       SET_REG_32_BIT(LED_Red_PORT->BSRR, LED_Red_Pin)  // è¾“å‡ºé«˜, GPIOx->BSRR = GPIO_Pin;
+#define LED_Red_Close()      SET_REG_32_BIT(LED_Red_PORT->BRR,  LED_Red_Pin)  // è¾“å‡ºä½  GPIOx->BRR = GPIO_Pin;
 #define LED_Red_RCC_APBPeriphClockCmdEnable()       SET_REG_32_BIT(RCC->APB2ENR, RCC_APB2Periph_GPIOA)   // PCLK2 = HCLK = 48MHz
 
 
-/*--------------------------ADC ¹Ü½Å¶¨Òå begin ---------------------*/
+/*--------------------------ADC ç®¡è„šå®šä¹‰ begin ---------------------*/
 // BAT_ADC -> PA0  ->  ADC1 Channel 0
 #define BAT_ADC_Pin             GPIO_Pin_0
 #define BAT_ADC_PORT            GPIOA
 #define BAT_ADC_x               ADC1
 #define BAT_ADC_Channel         ADC_Channel_0
 
-/*--------------------------ADC ¹Ü½Å¶¨Òå end  ---------------------*/
+/*--------------------------ADC ç®¡è„šå®šä¹‰ end  ---------------------*/
 
 
-/* ----------------------LCD 1602 ¹Ü½Å¶¨Òå begin  -----------------*/
+/* ----------------------LCD 1602 ç®¡è„šå®šä¹‰ begin  -----------------*/
 #define LCD_RS_PIN   GPIO_Pin_13   // PC13
 #define LCD_RS_PORT  GPIOC
 #define LCD_RS_H()   (LCD_RS_PORT->BSRR =  LCD_RS_PIN)   // GPIO_SetBits(LCD_RS_PORT, LCD_RS_PIN);
@@ -216,7 +216,7 @@ OS:      None, Èí¼ş¶¨Ê±Æ÷
 	LCD_D6_WRITE(Bit_SET);\
 	LCD_D5_WRITE(Bit_SET);\
 	LCD_D4_WRITE(Bit_SET);\
-	}  // Êı¾İÎ» 4bit ¶¼ÖÃÎª 1
+	}  // æ•°æ®ä½ 4bit éƒ½ç½®ä¸º 1
 	
 #define LCD_DATA_4BIT_L()   {\
 	LCD_D7_WRITE(Bit_RESET);\
@@ -225,7 +225,7 @@ OS:      None, Èí¼ş¶¨Ê±Æ÷
 	LCD_D4_WRITE(Bit_RESET);\
 	}
 
-// ·¢ËÍvalµÄ¸ß4Î»Öµ
+// å‘é€valçš„é«˜4ä½å€¼
 #define LCD_DATA_4BIT_OUT(val)   {\
 	LCD_D7_WRITE(val & 0x80);\
 	LCD_D6_WRITE(val & 0x40);\
@@ -234,7 +234,7 @@ OS:      None, Èí¼ş¶¨Ê±Æ÷
 	}
 
 #define RCC_APB2Periph_LCD_GPIO  ( RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOA)
-/* ----------------------LCD 1602 ¹Ü½Å¶¨Òå end  -----------------*/
+/* ----------------------LCD 1602 ç®¡è„šå®šä¹‰ end  -----------------*/
 
 void LCD_Ctrl_Set(E_SW_STATE sta);
 void Board_GpioInit(void);

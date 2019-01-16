@@ -14,8 +14,11 @@
 
 
 
-#if TVOC_DEBUG_EN
-#define tvoc_printf(fmt, ...)  printf(fmt, ##__VA_ARGS__)
+
+#if PM25_DEBUG_EN
+#define PM25_DEBUG(fmt, ...)  printf(fmt, ##__VA_ARGS__)
+#else
+#define PM25_DEBUG(...)
 #endif
 
 #define ON_USING    0
@@ -55,6 +58,7 @@ static const uint8_t AqiStdString[][7] = {
 // AQI 等级, 共 7 级
 static const T_AQI AqiLevel[] = 
 {
+       #if 0
 // C_low_us C_high_us, C_low_cn, C_high_cn, aqi_low,  aqi_high 
   	{0,       15.4,       0,         35,          0,          50  }, 
 	{15.5,    40.4,      35.1,      75,          51,         100 }, 
@@ -63,6 +67,17 @@ static const T_AQI AqiLevel[] =
     {150.5,   250.4,     150.1,     250,        201,        300},
     {250.5,   350.4,     250.1,     350,        301,        400},
     {350.5,   500.4,     350.1,     500,        401,        500},
+    #else
+        // real val * 10, 为真实值的10倍
+// C_low_us C_high_us, C_low_cn, C_high_cn, aqi_low,  aqi_high 
+  	{0,       154,       0,         350,          0,          50  }, 
+	{155,    404,      351,      750,          51,         100 }, 
+  	{405,    654,      751,      1150,         101,       150 },
+  	{655,    1504,     1151,     1500,        151,        200 },
+    {1505,   2504,     1501,     2500,        201,        300},
+    {2505,   3504,     2501,     3500,        301,        400},
+    {3505,   5004,     3501,     5000,        401,        500},
+    #endif
 };
 
 #define AQI_LEVEL_STR_SIZE  ( sizeof(AqiLevelString) / sizeof(AqiLevelString[0]) )  
@@ -127,7 +142,7 @@ typedef enum
 
 
 #define MAX_MASTER_STATE_SEC    10   // 主状态显示时间
-#define HOLD_STATE_SEC          6   // 状态保持时间
+#define HOLD_STATE_SEC          6    // 状态保持时间
 
 // 传感器显示管理
 typedef struct
@@ -136,7 +151,7 @@ typedef struct
    uint8_t  sub_state;       // 子状态
    uint8_t  last_master_state; // 上一次主状态
    uint16_t master_sec;      // 主状态显示的时间
-   uint8_t  hold;             // 是否保持显示
+   uint8_t  hold;            // 是否保持显示
 }T_SensorDisplay;
 
 
@@ -145,6 +160,10 @@ T_SensorDisplay SensorDisp;   // 传感器数据显示控制
 
 // 温湿度值
 T_TempHumi tTempHumi;
+uint16_t g_hcho_mass = 0;
+uint16_t  g_pm2p5_ug;
+uint16_t   g_pm10_ug;
+
 
 
 // 接收的甲醛数据分析处理
@@ -188,21 +207,25 @@ static void LCD_Display_PC(uint16_t pc0p3um, uint16_t pc2p5um)
 // 返回值: AQI
 static uint16_t PM25_AqiCalculate(uint16_t pm25, E_AQI_STD aqi_std, uint8_t *level)
 {
-    float c_low = 0, c_high = 0;
+   // float c_low = 0, c_high = 0;
+      uint16_t c_low = 0, c_high = 0;
 	uint8_t i;
-    float deltaC;     // 浓度差值
+   // float deltaC;     // 浓度差值
+     uint16_t deltaC;
+     
     uint16_t deltaI;  // AQI 差值
 	uint16_t aqi = 0;
 	
 	if(pm25 > 500)pm25 = 500;
-	
+
+	pm25 *= 10;
 	if(aqi_std == AQI_CN)
 	{
 	    for(i = 0; i < AQI_LEVEL_SIZE; i++)
 		{
 		    if(AqiLevel[i].C_low_cn <= pm25 && pm25 <= AqiLevel[i].C_high_cn)
 		    {
-		        c_low  = AqiLevel[i].C_low_cn;
+		              c_low  = AqiLevel[i].C_low_cn;
 				c_high = AqiLevel[i].C_high_cn;
 				break;
 		    }
@@ -214,7 +237,7 @@ static uint16_t PM25_AqiCalculate(uint16_t pm25, E_AQI_STD aqi_std, uint8_t *lev
 		{
 		    if(AqiLevel[i].C_low_us <= pm25 && pm25 <= AqiLevel[i].C_high_us)
 		    {
-		       c_low  = AqiLevel[i].C_low_us;
+		          c_low  = AqiLevel[i].C_low_us;
 			   c_high = AqiLevel[i].C_high_us;
 			   break;
 		    }
@@ -223,7 +246,7 @@ static uint16_t PM25_AqiCalculate(uint16_t pm25, E_AQI_STD aqi_std, uint8_t *lev
 
     if(i < AQI_LEVEL_SIZE)	
     {
-        deltaC = c_high - c_low;
+              deltaC = c_high - c_low;
 		deltaI = AqiLevel[i].I_high - AqiLevel[i].I_low;
 		aqi = (uint16_t)(((double)deltaI) * (pm25 - c_low) / deltaC + AqiLevel[i].I_low);
     }
@@ -436,7 +459,11 @@ static uint16_t HCHO_CalculateAverageVal(uint8_t div)
 
 static void TimerPM25Store_CallBack(void * arg)
 {
+    PM25_DEBUG("pm2.5 = %d ug/m3\n", tPM25CmdContent.pm25_air);
     SDRR_SaveSensorPoint(SENSOR_PM25, (void *)&tPM25CmdContent.pm25_air);
+
+    g_pm2p5_ug = tPM25CmdContent.pm25_air;
+    g_pm10_ug   = tPM25CmdContent.pm10_air;
 }
 
 // 甲醛浓度曲线变化平滑处理
@@ -478,6 +505,8 @@ uint16_t TrendCurveSmooth(uint16_t new_val)
 	  return average;
 }
 #endif
+
+static const u16 U16_MAX = 0xFFFF;
 
 // 计算传感器数据的定时回调
 static void TimerCalculator_CallBack(void * arg)
@@ -547,15 +576,64 @@ static void TimerCalculator_CallBack(void * arg)
 		}
 	}
 
-	if(is_debug_on)os_printf("aver_ppb = %d, aver_mass = %d ug/m3\n", tHchoAna.aver_ppb, tHchoAna.aver_mass);
+	if(is_debug_on)PM25_DEBUG("aver_ppb = %d, aver_mass = %d ug/m3\n", tHchoAna.aver_ppb, tHchoAna.aver_mass);
 		
     HchoRx.is_rx     = 0;  // 
 	tHchoAna.new_ppb = 0;  // 数据清0
 
     if(flush_hcho)
     {
+    #if USE_TVOC_CAL
+		 if(tHchoAna.aver_mass < 30)
+		 {
+            if(tTempHumi.tvoc < U16_MAX)
+            {
+               if(tTempHumi.tvoc <= 100)
+			   	  tHchoAna.aver_mass = tTempHumi.tvoc / 10;  // 10 ug 左右
+               else if(tTempHumi.tvoc < 500)  // 500 ug
+                  tHchoAna.aver_mass = tTempHumi.tvoc / 6;  // 30 ug 左右
+               else
+			   	  tHchoAna.aver_mass = tTempHumi.tvoc / 8;
+            }
+			else
+			{
+			    if(tHchoAna.aver_mass < 4)tHchoAna.aver_mass = 10;
+				else tHchoAna.aver_mass += 5;
+			}
+		 }
+		 else if(tHchoAna.aver_mass < 1000)
+		 {
+		    if(tTempHumi.tvoc < U16_MAX)
+		       tHchoAna.aver_mass = (tHchoAna.aver_mass + (tTempHumi.tvoc / 5.0)) / 2.0;
+		 }
+		 
+    #else
+		if(tHchoAna.aver_mass < 30)
+		{
+		    if(tTempHumi.tvoc < U16_MAX)
+		    {
+		       if(tTempHumi.tvoc < 150)
+			   	  tHchoAna.aver_mass = tTempHumi.tvoc / 4;  // 10 ug 左右
+			   else if(tTempHumi.tvoc < 500)  // 500 ug
+                  tHchoAna.aver_mass = tTempHumi.tvoc / 6;  // 30 ug 左右
+               else
+			   	  tHchoAna.aver_mass = tTempHumi.tvoc / 10;
+		    }
+			else
+			{
+			   if(tHchoAna.aver_mass < 4)tHchoAna.aver_mass = 10;
+			   else tHchoAna.aver_mass += 5;
+			}
+		}
+	#endif
+		tHchoAna.aver_ppb = (uint16_t)((double)tHchoAna.aver_mass * 22.4 / 30); 
+	
         SDRR_SaveSensorPoint(SENSOR_HCHO, (void *)&tHchoAna.aver_mass);
     }
+
+    g_hcho_mass = tHchoAna.aver_mass;
+
+    
     //if(is_disp_hcho)
 	   //os_printf("tick = %ld, aver_ppb = %d ppm, aver_mass = %d ug/m3\n", Sys_GetRunTime(), aver_ppb, mass_fraction);
 }
@@ -577,7 +655,7 @@ void HCHO_Receive(uint8_t * buf, uint16_t len)
 	  }
    }
 }
-// 显示质量分数, ug/m3
+// 显示质量分数, mg/m3
 #if 0
 #define HCHO_DisplayMassFract(val)  LCD1602_WriteInteger(0,  5, val, 5)
 #else
@@ -588,7 +666,7 @@ static void HCHO_DisplayMassFract(uint16_t val)
    LCD1602_WriteData('.');
    LCD1602_WriteData(val % 1000 / 100 + 0x30);
    LCD1602_WriteData(val % 100 / 10 + 0x30);
-   LCD1602_WriteData(val % 10 + 0x30);
+  // LCD1602_WriteData(val % 10 + 0x30);
 }
 
 #endif
@@ -600,7 +678,7 @@ static void HCHO_DisplayMassFractInit(uint16_t val)
    HCHO_DisplayMassFract(val);     
    LCD1602_WriteString (0,  10, " mg/m3");
 }
-// 显示甲醛的PPM数值
+// 显示甲醛的PPM数值: x.xx ppm
 static void HCHO_DisplayPPM(uint16_t val)
 {
    LCD1602_SetXY(0, 5);
@@ -608,7 +686,7 @@ static void HCHO_DisplayPPM(uint16_t val)
    LCD1602_WriteData('.');
    LCD1602_WriteData(val % 1000 / 100 + 0x30);
    LCD1602_WriteData(val % 100 / 10 + 0x30);
-   LCD1602_WriteData(val % 10 + 0x30);
+   //LCD1602_WriteData(val % 10 + 0x30);
 }
 
 // 显示甲醛的体积分数初始化, ppm
@@ -656,21 +734,21 @@ static void TempHumi_DisplayValue(uint8_t display_mode)
    uint8_t val = 0;
    
    LCD1602_SetXY(0, 0);
-   val = tTempHumi.temp / 10000;   // 温度正负符号
+   val = tTempHumi.temp & 0x8000;   // 温度正负符号
    if(val)LCD1602_WriteData('-'); // 温度为负值
    else  LCD1602_WriteData(' ');
 
-   tTempHumi.temp %= 10000;  // 去掉可能的负号
+   tTempHumi.temp &= 0x7FFF;  // 去掉可能的负号
    LCD1602_WriteData(tTempHumi.temp / 1000 + 0x30);  // 温度十位
    LCD1602_WriteData(tTempHumi.temp % 1000 / 100 + 0x30);    // 温度个位
    
    LCD1602_SetXY(0, 4);
    LCD1602_WriteData(tTempHumi.temp % 100 / 10 + 0x30);    // 温度小数点后 1 位
-   LCD1602_WriteData(tTempHumi.temp % 10 + 0x30);          // 温度小数点后 2 位
+  // LCD1602_WriteData(tTempHumi.temp % 10 + 0x30);          // 温度小数点后 2 位
    
    LCD1602_SetXY(0, 13);
-   LCD1602_WriteData(tTempHumi.humi % 10000 / 1000 + 0x30);   // 温度十位
-   LCD1602_WriteData(tTempHumi.humi % 1000 / 100 + 0x30);              // 温度个位
+   LCD1602_WriteData(tTempHumi.humi % 10000 / 1000 + 0x30);   // 湿度十位
+   LCD1602_WriteData(tTempHumi.humi % 1000 / 100 + 0x30);              // 湿度个位
 
    if(SensorDisp.hold == SENSOR_STA_TEMPHUMI)
    	  LCD1602_WriteString(1, 15, "H");
@@ -762,13 +840,15 @@ static void TIME_StartChargeDisplayTimer(void)
 
 static void TIME_DisplayValue(uint8_t display_mode)
 {
+    #if 0
     LCD1602_WriteInt(0, 0, calendar.year % 100);
 	LCD1602_WriteInt(0, 3, calendar.month);
 	LCD1602_WriteInt(0, 6, calendar.day);
 	LCD1602_WriteInt(1, 0, calendar.hour);
 	LCD1602_WriteInt(1, 3, calendar.min);
 	LCD1602_WriteInt(1, 6, calendar.sec);
-
+    #endif
+	
     LCD1602_WriteInteger(0, 12, bat_lev_percent, 3);  // 电池电量
     TIME_StartChargeDisplayTimer();
 	if(SensorDisp.hold == SENSOR_STA_TIME)
@@ -781,9 +861,10 @@ static void TIME_DisplayInit(uint8_t display_mode)
     LCD1602_ClearScreen();
 	
 	is_enter_time_mode = E_TRUE;
+	
 	TIME_DisplayValue(display_mode);
     
-	 
+	#if 0 
 	LCD1602_SetXY(0, 2);
     LCD1602_WriteData('-');
 	LCD1602_SetXY(0, 5);
@@ -793,7 +874,8 @@ static void TIME_DisplayInit(uint8_t display_mode)
     LCD1602_WriteData(':');
 	LCD1602_SetXY(1, 5);
     LCD1602_WriteData(':');
-
+    #endif
+	
     LCD1602_WriteString(0, 9, "BAT");
 	LCD1602_WriteString(0, 15, "%");
 	
@@ -936,6 +1018,7 @@ static void NoSensor_DisplayValue(uint8_t display_mode)
 
 }
 
+
 // 计算校正后的结果, 参数: result: 返回值; aver: 平均值, 输入; cali: 设置的环境背景值, 输入
 #define HCHO_GetCaliResult(result, aver, cali)  {\
 	if(cali){\
@@ -989,6 +1072,7 @@ void HCHO_DisplayValue(uint8_t display_mode)
 	  }break;
 	  case HCHO_DISPLAY_PPM:
 	  {
+	  	 
 		 HCHO_GetCaliResult(aver, aver, tHchoAna.cali_ppb);
 	  	 HCHO_DisplayPPM(aver);
 	  }break;
@@ -996,7 +1080,6 @@ void HCHO_DisplayValue(uint8_t display_mode)
     if(tHchoAna.is_cal && SensorDisp.hold == SENSOR_STA_HCHO)
    	   LCD1602_WriteString(1, 13, "C&H");
     else if(tHchoAna.is_cal)LCD1602_WriteString(1, 13, "CAL");
-   //TempHumi_Display(tDHT.temp_H, tDHT.humi_H);
    if(is_rgb_on)LED_IndicateColorOfHCHO();
    HCHO_Indicate(mass);
 }
@@ -1009,7 +1092,7 @@ void HCHO_DisplayValue(uint8_t display_mode)
 void HCHO_Indicate(uint16_t val)
 {
     #if 1
-    if(val < 80)
+    if(val < 100)
     {
        LCD1602_WriteString(1,  0, "Good       ");
 	   //if(is_rgb_on)LED_AqiIndicate(AQI_GOOD);             // 绿灯
@@ -1143,6 +1226,7 @@ void Sensor_HoldDisplay(void)
 	
     if(SensorDisp.hold == 0 || SensorDisp.hold != SensorDisp.master_state)
     {
+
         SensorDisp.hold = SensorDisp.master_state;  // 设置为显示保持
 
 		if(SensorDisp.master_state == SENSOR_STA_HCHO)
@@ -1380,6 +1464,9 @@ void PM25_Init(void)
    #endif
 
    os_memset(&tHchoAna, 0, sizeof(tHchoAna));
+   os_memset(&SensorDisp, 0, sizeof(SensorDisp));
+
+   
    tHchoAna.is_power_first = E_TRUE;
    
    if(F10X_FLASH_ReadSysEnv(&env) == FLASH_SUCCESS)

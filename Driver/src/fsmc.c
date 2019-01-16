@@ -1,7 +1,7 @@
 /*******************************************
-ÓÉÓÚFSMC±È½Ï·±Ëö£¬¹ÊFSMCµÄ³õÊ¼»¯ÊÇÖ±½Ó´Ó¿âÀï¿½±´¹ýÀ´µÄ£¬
-µÈ¶ÔFSMC±È½ÏÊìÏ¤²Å×ÔÐÐÐ´´úÂë
-±¾ÎÄÎªFSMCµÄ³õÊ¼»¯£¬Ïàµ±ÓÚFSMCµÄ¿â
+ç”±äºŽFSMCæ¯”è¾ƒç¹çï¼Œæ•…FSMCçš„åˆå§‹åŒ–æ˜¯ç›´æŽ¥ä»Žåº“é‡Œæ‹·è´è¿‡æ¥çš„ï¼Œ
+ç­‰å¯¹FSMCæ¯”è¾ƒç†Ÿæ‚‰æ‰è‡ªè¡Œå†™ä»£ç 
+æœ¬æ–‡ä¸ºFSMCçš„åˆå§‹åŒ–ï¼Œç›¸å½“äºŽFSMCçš„åº“
 ********************************************/
 
 #include "FSMC.h"
@@ -11,10 +11,10 @@ FSMC_NORSRAMInitTypeDef  FSMC_NORSRAMInitStructure;
 FSMC_NORSRAMTimingInitTypeDef  p;
 
 
-//FSMC³õÊ¼»¯
+//FSMCåˆå§‹åŒ–
 void FSMC_Init(void)
 {
-  RCC->AHBENR |= (1<<8); //Ê¹ÄÜFSMCÊ±ÖÓ
+  RCC->AHBENR |= (1<<8); //ä½¿èƒ½FSMCæ—¶é’Ÿ
 
   p.FSMC_AddressSetupTime = 0x02;
   p.FSMC_AddressHoldTime = 0x00;
@@ -24,7 +24,7 @@ void FSMC_Init(void)
   p.FSMC_DataLatency = 0x00;
   p.FSMC_AccessMode = FSMC_AccessMode_B;
 
-  //ÅäÖÃbank1,1Çø
+  //é…ç½®bank1,1åŒº
 
   FSMC_NORSRAMInitStructure.FSMC_Bank = FSMC_Bank1_NORSRAM1;
   FSMC_NORSRAMInitStructure.FSMC_DataAddressMux = FSMC_DataAddressMux_Disable;

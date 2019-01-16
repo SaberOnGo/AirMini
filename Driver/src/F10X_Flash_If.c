@@ -5,8 +5,8 @@
 
 extern uint8_t spi_flash_buf[];
 
-// Ð´ÈëAPP ÊôÐÔ
-// ³É¹¦: ·µ»Ø0;  Ê§°Ü£» 1
+// å†™å…¥APP å±žæ€§
+// æˆåŠŸ: è¿”å›ž0;  å¤±è´¥ï¼› 1
 uint8_t F10X_FLASH_WriteAppAttr(uint32_t flashAddress, T_APP_FLASH_ATTR * newAttr)
 {
    const sfud_flash *flash = sfud_get_device_table() + 0;
@@ -31,8 +31,8 @@ uint8_t F10X_FLASH_WriteAppAttr(uint32_t flashAddress, T_APP_FLASH_ATTR * newAtt
    return FLASH_SUCCESS;
 }
 
-// Ð´ÈëÏµÍ³»·¾³±äÁ¿
-// ³É¹¦: ·µ»Ø0;  Ê§°Ü£» 1
+// å†™å…¥ç³»ç»ŸçŽ¯å¢ƒå˜é‡
+// æˆåŠŸ: è¿”å›ž0;  å¤±è´¥ï¼› 1
 uint8_t F10X_FLASH_WriteSysEnv(T_SYS_ENV * pEnv)
 {
 	const sfud_flash *flash = sfud_get_device_table() + 0;
@@ -58,8 +58,8 @@ uint8_t F10X_FLASH_WriteSysEnv(T_SYS_ENV * pEnv)
 
 }
 
-// ¶ÁÈ¡APP ÊôÐÔ
-// ³É¹¦: ·µ»Ø0;  Ê§°Ü£» 1
+// è¯»å–APP å±žæ€§
+// æˆåŠŸ: è¿”å›ž0;  å¤±è´¥ï¼› 1
 uint8_t F10X_FLASH_ReadAppAttr(uint32_t flashAddress, T_APP_FLASH_ATTR * outAttr)
 {
     uint8_t buf[sizeof(T_APP_FLASH_ATTR)];
@@ -70,7 +70,7 @@ uint8_t F10X_FLASH_ReadAppAttr(uint32_t flashAddress, T_APP_FLASH_ATTR * outAttr
 	os_printf("read flashAddr = 0x%x, sector = %d\n", flashAddress, flashAddress >> 12);
 	
     sfud_read(flash, flashAddress, sizeof(buf), buf); 
-	sumResult = Sys_GenSum32(buf, sizeof(T_APP_FLASH_ATTR) - 8);  // ³ý8¸ö×Ö½ÚµÄÐ£ÑéÂëÍâ, ÆäËü¶¼ÐèÐ£Ñé
+	sumResult = Sys_GenSum32(buf, sizeof(T_APP_FLASH_ATTR) - 8);  // é™¤8ä¸ªå­—èŠ‚çš„æ ¡éªŒç å¤–, å…¶å®ƒéƒ½éœ€æ ¡éªŒ
 	os_memcpy(outAttr, buf, sizeof(T_APP_FLASH_ATTR));
 	
 	if(sumResult != outAttr->checkSum || (outAttr->checkSum != (~outAttr->checkSumInverse)))
@@ -83,8 +83,8 @@ uint8_t F10X_FLASH_ReadAppAttr(uint32_t flashAddress, T_APP_FLASH_ATTR * outAttr
 	return FLASH_SUCCESS;  // success
 }
 
-// ¶ÁÈ¡ÏµÍ³»·¾³±äÁ¿
-// ³É¹¦: ·µ»Ø0;  Ê§°Ü£» 1
+// è¯»å–ç³»ç»ŸçŽ¯å¢ƒå˜é‡
+// æˆåŠŸ: è¿”å›ž0;  å¤±è´¥ï¼› 1
 uint8_t F10X_FLASH_ReadSysEnv(T_SYS_ENV * outEnv)
 {
     uint8_t buf[sizeof(T_SYS_ENV)];
@@ -96,7 +96,7 @@ uint8_t F10X_FLASH_ReadSysEnv(T_SYS_ENV * outEnv)
 	if(NULL == outEnv){ INSERT_ERROR_INFO(0); return FLASH_FAILED; }
 	
     sfud_read(flash, flashAddress, sizeof(buf), buf); 
-	sumResult = Sys_GenSum32(buf, sizeof(T_SYS_ENV) - 8);  // ³ý8¸ö×Ö½ÚµÄÐ£ÑéÂëÍâ, ÆäËü¶¼ÐèÐ£Ñé
+	sumResult = Sys_GenSum32(buf, sizeof(T_SYS_ENV) - 8);  // é™¤8ä¸ªå­—èŠ‚çš„æ ¡éªŒç å¤–, å…¶å®ƒéƒ½éœ€æ ¡éªŒ
 	os_memcpy(outEnv, buf, sizeof(T_SYS_ENV));
 	
 	if(sumResult != outEnv->checkSum || (outEnv->checkSum != (~outEnv->checkSumInverse)))

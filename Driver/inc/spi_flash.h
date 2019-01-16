@@ -3,7 +3,7 @@
 
 #include "stm32f10x.h"
 
-//º¯Êý±àÒë¿ª¹Ø
+//å‡½æ•°ç¼–è¯‘å¼€å…³
 #define ON	1
 #define OFF	0
 #define USE_GETCHIPID			ON
@@ -27,7 +27,7 @@
 
 
 /****************************************
-	W25X32	ÃüÁî
+	W25X32	å‘½ä»¤
 ****************************************/
 #define W25X32_CHIPID				0xEF3016
 
@@ -48,11 +48,11 @@
 #define W25X_ManufactDeviceID		0x90
 #define W25X_JedecDeviceID			0x9F
 
-//CSÆ¬Ñ¡ÐÅºÅ
+//CSç‰‡é€‰ä¿¡å·
 #define FLASH_CS_0()			(GPIOB->BRR  = GPIO_Pin_12)   // GPIO_ResetBits(GPIOB, GPIO_Pin_12)
 #define FLASH_CS_1()			(GPIOB->BSRR = GPIO_Pin_12)   // GPIO_SetBits(GPIOB,   GPIO_Pin_12)
 
-//Ð¾Æ¬¼ì²â
+//èŠ¯ç‰‡æ£€æµ‹
 #define W25X_Check()			((W25X_GetChipID() == W25X32_CHIPID) ? 1 : 0)
 
 int32_t spi2_disk_initialize(void);

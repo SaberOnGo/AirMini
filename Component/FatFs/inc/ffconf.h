@@ -143,7 +143,7 @@
 / Drive/Volume Configurations
 /----------------------------------------------------------------------------*/
 
-#define _VOLUMES    2  // ж╖Ёж2╦Ж╢еел
+#define _VOLUMES    1  // Ф■╞Ф▄│2Д╦╙Гё│Г⌡≤
 /* Number of volumes (logical drives) to be used. */
 
 #define _STR_VOLUME_ID	0

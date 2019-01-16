@@ -9,7 +9,7 @@
 //static nos_sem_t *semIIC = NULL;
 #endif
 
-//³õÊ¼»¯IIC
+//åˆå§‹åŒ–IIC
 void IIC_Init(void)
 {					     
 	GPIO_InitTypeDef GPIO_InitStructure;
@@ -17,7 +17,7 @@ void IIC_Init(void)
 	IIC_APBPeriphClockCmdEnable();  
 	   
 	GPIO_InitStructure.GPIO_Pin   = IIC_SDA_Pin | IIC_SCL_Pin;
-	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_Out_PP ;   //ÍÆÍìÊä³ö
+	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_Out_PP ;   //æ¨æŒ½è¾“å‡º
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	
 	STM32_GPIOInit(IIC_BUS_PORT, &GPIO_InitStructure);
@@ -25,13 +25,13 @@ void IIC_Init(void)
     IIC_SCL_H();
     IIC_SDA_H();
 
-	//if(nos_sem_init(&semIIC, "semIIC", 1, NOS_IPC_FLAG_FIFO) != NOS_OK) // ³õÊ¼»¯ĞÅºÅÁ¿
+	//if(nos_sem_init(&semIIC, "semIIC", 1, NOS_IPC_FLAG_FIFO) != NOS_OK) // åˆå§‹åŒ–ä¿¡å·é‡
 	//{
 	//   os_printf("create semIIC failed, %s, %d\r\n", __FILE__, __LINE__);
 	//}
 }
 
-// ÉèÖÃÊı¾İ¿ÚÎªÊäÈë»òÊä³ö
+// è®¾ç½®æ•°æ®å£ä¸ºè¾“å…¥æˆ–è¾“å‡º
 static void SDA_DIR(E_IO_DIR dir)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -44,46 +44,57 @@ static void SDA_DIR(E_IO_DIR dir)
 	STM32_GPIOInit(IIC_SDA_PORT, &GPIO_InitStructure);
 }
 
+void IIC_ClosePower(void)
+{
+    GPIO_InitTypeDef GPIO_InitStructure;
+ 
+	GPIO_InitStructure.GPIO_Pin   = IIC_SDA_Pin | IIC_SCL_Pin;
+	GPIO_InitStructure.GPIO_Mode  = GPIO_Mode_IPD;   //ä¸‹æ‹‰è¾“å…¥
+	
+	STM32_GPIOInit(IIC_BUS_PORT, &GPIO_InitStructure);
+}
 
-//²úÉúIICÆğÊ¼ĞÅºÅ
+//äº§ç”ŸIICèµ·å§‹ä¿¡å·
 SYS_RESULT i2c_start(void)
 {
 	SDA_DIR(OUTPUT);  	 
 	IIC_SDA_H();
+	delay_us(5);
 	IIC_SCL_H();
-	delay_us(1);  // 4
-	if(! IIC_SDA_READ())return SYS_FAILED;	//SDAÏßÎªµÍµçÆ½Ôò×ÜÏßÃ¦,ÍË³ö
+	delay_us(5);  
+	if(! IIC_SDA_READ())return SYS_FAILED;	//SDAçº¿ä¸ºä½ç”µå¹³åˆ™æ€»çº¿å¿™,é€€å‡º
 	
  	IIC_SDA_L();  // START:when CLK is high,DATA change form high to low 
-	delay_us(1);  // 4
+	delay_us(5);  
 
-	IIC_SCL_L();  //Ç¯×¡I2C×ÜÏß£¬×¼±¸·¢ËÍ»ò½ÓÊÕÊı¾İ 
+	IIC_SCL_L();  //é’³ä½I2Cæ€»çº¿ï¼Œå‡†å¤‡å‘é€æˆ–æ¥æ”¶æ•°æ® 
     
     return SYS_SUCCESS;
 }	  
 
 
-//²úÉúIICÍ£Ö¹ĞÅºÅ
+//äº§ç”ŸIICåœæ­¢ä¿¡å·
 void i2c_stop(void)
 {
-	SDA_DIR(OUTPUT);   // sdaÏßÊä³ö
+	SDA_DIR(OUTPUT);   // sdaçº¿è¾“å‡º
 	IIC_SCL_L();
 	IIC_SDA_L();    // STOP:when CLK is high DATA change form low to high
- 	delay_us(1);    //  4 
+ 	delay_us(5);    //  4 
 	IIC_SCL_H();
-	IIC_SDA_H();    // ·¢ËÍI2C×ÜÏß½áÊøĞÅºÅ
+	delay_us(1);
+	IIC_SDA_H();    // å‘é€I2Cæ€»çº¿ç»“æŸä¿¡å·
 	delay_us(1);	 //  4						   	
 }
 
-//µÈ´ıÓ¦´ğĞÅºÅµ½À´
-//·µ»ØÖµ£º1£¬½ÓÊÕÓ¦´ğÊ§°Ü
-//        0£¬½ÓÊÕÓ¦´ğ³É¹¦
+//ç­‰å¾…åº”ç­”ä¿¡å·åˆ°æ¥
+//è¿”å›å€¼ï¼š1ï¼Œæ¥æ”¶åº”ç­”å¤±è´¥
+//        0ï¼Œæ¥æ”¶åº”ç­”æˆåŠŸ
 SYS_RESULT i2c_wait_ack(void)
 {
 	uint16_t errCount = 0;     
 
 	IIC_SCL_L();
-	SDA_DIR(INPUT);  //SDAÉèÖÃÎªÊäÈë  
+	SDA_DIR(INPUT);  //SDAè®¾ç½®ä¸ºè¾“å…¥  
 	IIC_SDA_H(); delay_us(1);	   // 5 
 	IIC_SCL_H(); delay_us(1);	   // 5
 	while(IIC_SDA_READ())
@@ -95,23 +106,23 @@ SYS_RESULT i2c_wait_ack(void)
 			return SYS_FAILED;
 		}
 	}
-	IIC_SCL_L();   // Ê±ÖÓÊä³ö0 	   
+	IIC_SCL_L();   // æ—¶é’Ÿè¾“å‡º0 	   
 	return SYS_SUCCESS;  
 }
 
-//²úÉúACKÓ¦´ğ
+//äº§ç”ŸACKåº”ç­”
 void i2c_ack(void)
 {
 	IIC_SCL_L();
 	SDA_DIR(OUTPUT);
 	IIC_SDA_L();
-	delay_us(1);  // 2
+	delay_us(5);  // 2
 	IIC_SCL_H();
-	delay_us(1);  // 2
+	delay_us(5);  // 2
 	IIC_SCL_L();
 }
 
-//²»²úÉúACKÓ¦´ğ		    
+//ä¸äº§ç”ŸACKåº”ç­”		    
 void i2c_nack(void)
 {
 	IIC_SCL_L();
@@ -123,57 +134,62 @@ void i2c_nack(void)
 	IIC_SCL_L();
 }			
 
-//IIC·¢ËÍÒ»¸ö×Ö½Ú
-//·µ»Ø´Ó»úÓĞÎŞÓ¦´ğ
-//1£¬ÓĞÓ¦´ğ
-//0£¬ÎŞÓ¦´ğ			  
+//IICå‘é€ä¸€ä¸ªå­—èŠ‚
+//è¿”å›ä»æœºæœ‰æ— åº”ç­”
+//1ï¼Œæœ‰åº”ç­”
+//0ï¼Œæ— åº”ç­”			  
 void i2c_send_byte(uint8_t txd)
 {                        
     uint8_t i;    	   
 	
-	SDA_DIR(OUTPUT);
-    IIC_SCL_L(); //À­µÍÊ±ÖÓ¿ªÊ¼Êı¾İ´«Êä
+    SDA_DIR(OUTPUT);
+    IIC_SCL_L(); //æ‹‰ä½æ—¶é’Ÿå¼€å§‹æ•°æ®ä¼ è¾“
     for(i = 0; i < 8; i++)
-    {              
+    {          
+              delay_us(4);
 		if(txd & 0x80)IIC_SDA_H();
 		else { IIC_SDA_L(); }
-        txd <<= 1; 	  
+               txd <<= 1; 	  
 		delay_us(1);   // 1
 		IIC_SCL_H();
-		delay_us(1);  //  1
+		delay_us(5);  //  1
 		IIC_SCL_L();
 		delay_us(1);  // 1
     }	 
 } 	    
 
-//¶Á1¸ö×Ö½Ú£¬ack = 1Ê±£¬·¢ËÍACK£¬ack = 0£¬·¢ËÍnACK   
+//è¯»1ä¸ªå­—èŠ‚ï¼Œack = 1æ—¶ï¼Œå‘é€ACKï¼Œack = 0ï¼Œå‘é€nACK   
 uint8_t i2c_read_byte(uint8_t ack)
 {
 	uint8_t  i, receive = 0;
-	
-	SDA_DIR(INPUT); //SDAÉèÖÃÎªÊäÈë
-    for(i = 0; i < 8; i++ )
-	{
-		IIC_SCL_L();
-        delay_us(1);  // 2
-		IIC_SCL_H();
-        receive <<= 1;
-        if(IIC_SDA_READ())receive++;   
-		delay_us(1); 
-    }	
+
 	IIC_SCL_L();
-    if (! ack)
-        i2c_nack(); //·¢ËÍnACK
-    else
-        i2c_ack();  //·¢ËÍACK   
-    return receive;
+       SDA_DIR(INPUT); //SDAè®¾ç½®ä¸ºè¾“å…¥
+       IIC_SDA_H();
+       delay_us(3);
+       for(i = 0; i < 8; i++ )
+	{
+		IIC_SCL_H();
+		delay_us(6);
+              receive <<= 1;
+              if(IIC_SDA_READ())
+                    receive++;
+              delay_us(1);
+              IIC_SCL_L();
+		delay_us(4); 
+       }	
+        if (! ack)
+                i2c_nack(); //å‘é€nACK
+        else
+                i2c_ack();  //å‘é€ACK   
+        return receive;
 }
 
 /***********************************************
-ËµÃ÷: I2C Æô¶¯Ğ´¼Ä´æÆ÷ÃüÁî
-²ÎÊı: uint8_t sla_addr     I2C ´Ô»úµØÖ·
-             uint8_t data_addr   ¼Ä´æÆ÷µØÖ·
-·µ»ØÖµ: Æô¶¯³É¹¦: SYS_SUCCESS;   Ê§°Ü: SYS_FAILED
+è¯´æ˜: I2C å¯åŠ¨å†™å¯„å­˜å™¨å‘½ä»¤
+å‚æ•°: uint8_t sla_addr     I2C ä¸›æœºåœ°å€
+             uint8_t data_addr   å¯„å­˜å™¨åœ°å€
+è¿”å›å€¼: å¯åŠ¨æˆåŠŸ: SYS_SUCCESS;   å¤±è´¥: SYS_FAILED
 ************************************************/
 SYS_RESULT i2c_start_write(uint8_t sla_addr, uint16_t data_addr)
 {
@@ -182,7 +198,7 @@ SYS_RESULT i2c_start_write(uint8_t sla_addr, uint16_t data_addr)
     i2c_send_byte(sla_addr | IIC_WRITE);
 	if(i2c_wait_ack()){ INSERT_ERROR_INFO(0); }
 
-    // Ğ´¼Ä´æÆ÷µØÖ·
+    // å†™å¯„å­˜å™¨åœ°å€
     #if 0
 	i2c_send_byte((data_addr >> 8)); 
 	if(i2c_wait_ack()){ INSERT_ERROR_INFO(0); return SYS_FAILED; }
@@ -204,10 +220,10 @@ SYS_RESULT IIC_WriteNByte_Raw(uint8_t sla_addr, uint16_t data_addr, uint8_t * pd
 
 	for(i = 0; i<size; i++, p++)
     {
-        i2c_send_byte(*p);			//Ğ´Êı¾İ
+        i2c_send_byte(*p);			//å†™æ•°æ®
         if(i2c_wait_ack()){ INSERT_ERROR_INFO(0); return SYS_FAILED; }
     }
-    i2c_stop();						//·¢ËÍSTOP ĞÅºÅ
+    i2c_stop();						//å‘é€STOP ä¿¡å·
     return SYS_SUCCESS;
 }
 
@@ -225,11 +241,11 @@ SYS_RESULT IIC_WriteNByte(uint8_t sla_addr, uint16_t data_addr, uint8_t * pdata,
 }
 
 /*******************************
-¹¦ÄÜËµÃ÷: ¶ÁÈ¡N¸ö×Ö½Ú
-²ÎÊı: uint8_t sla_addr: I2CÉè±¸´Ó»úµØÖ·
-             uint16_t data_addr: ¼Ä´æÆ÷µØÖ·
-             uint8_t * pdata: ¶ÁÈ¡µÄÊı¾İÆğÊ¼Ö¸Õë
-             uint8_t   size: ¶ÁÈ¡µÄÊı¾İ³¤¶È, ÊäÈëÊ±ÊÇÒª¶ÁÈ¡µÄÊı¾İ³¤¶È. 
+åŠŸèƒ½è¯´æ˜: è¯»å–Nä¸ªå­—èŠ‚
+å‚æ•°: uint8_t sla_addr: I2Cè®¾å¤‡ä»æœºåœ°å€
+             uint16_t data_addr: å¯„å­˜å™¨åœ°å€
+             uint8_t * pdata: è¯»å–çš„æ•°æ®èµ·å§‹æŒ‡é’ˆ
+             uint8_t   size: è¯»å–çš„æ•°æ®é•¿åº¦, è¾“å…¥æ—¶æ˜¯è¦è¯»å–çš„æ•°æ®é•¿åº¦. 
 ********************************/
 SYS_RESULT IIC_ReadNByte_Raw(uint8_t sla_addr, uint16_t data_addr, uint8_t * pdata, uint8_t size, uint8_t restart_iic)
 {
@@ -239,12 +255,12 @@ SYS_RESULT IIC_ReadNByte_Raw(uint8_t sla_addr, uint16_t data_addr, uint8_t * pda
 
     if(restart_iic){ i2c_start(); }
 	
-    i2c_send_byte(sla_addr  | IIC_READ); //¶ÁÄ£Ê½
+    i2c_send_byte(sla_addr  | IIC_READ); //è¯»æ¨¡å¼
     if(i2c_wait_ack()){ INSERT_ERROR_INFO(0); return SYS_FAILED; }
 
-    for(; size > 1; size--, p++)	//×¢ÒâÕâÀï±ØĞëÊÇsize > 1,ÒòÎªÏÂÃæ»¹»áÔÙ¶ÁÈ¡Ò»¸ö
+    for(; size > 1; size--, p++)	//æ³¨æ„è¿™é‡Œå¿…é¡»æ˜¯size > 1,å› ä¸ºä¸‹é¢è¿˜ä¼šå†è¯»å–ä¸€ä¸ª
     {
-        *p = i2c_read_byte(1);  //¶ÁÈ¡Êı¾İ
+        *p = i2c_read_byte(1);  //è¯»å–æ•°æ®
     }
     *p = i2c_read_byte(0);
     i2c_stop();
@@ -264,15 +280,15 @@ SYS_RESULT IIC_ReadNByteExt(uint8_t sla_addr, uint16_t data_addr, uint8_t * pdat
    return res;
 }
 
-// ±ê×¼IIC
+// æ ‡å‡†IIC
 SYS_RESULT IIC_ReadNByte(uint8_t sla_addr, uint16_t data_addr, uint8_t * pdata, uint8_t size)
 {
     return IIC_ReadNByteExt(sla_addr, data_addr, pdata, size, 0);
 }
 
 /************************************************
-¹¦ÄÜ: Ö±½Ó¶ÁN¸ö×Ö½Ú, ²»ĞèÒªÖ¸¶¨¼Ä´æÆ÷µØÖ·
-²ÎÊı: 
+åŠŸèƒ½: ç›´æ¥è¯»Nä¸ªå­—èŠ‚, ä¸éœ€è¦æŒ‡å®šå¯„å­˜å™¨åœ°å€
+å‚æ•°: 
 *************************************************/
 SYS_RESULT IIC_ReadNByteDirectly_Raw(uint8_t sla_addr, uint8_t * pdata, uint8_t size)
 {
@@ -280,12 +296,12 @@ SYS_RESULT IIC_ReadNByteDirectly_Raw(uint8_t sla_addr, uint8_t * pdata, uint8_t 
 
     if(i2c_start()){ INSERT_ERROR_INFO(0); return SYS_FAILED; }
 	
-    i2c_send_byte(sla_addr | IIC_READ); //¶ÁÄ£Ê½
+    i2c_send_byte(sla_addr | IIC_READ); //è¯»æ¨¡å¼
     if(i2c_wait_ack()){ INSERT_ERROR_INFO(0); return SYS_FAILED; }
 
-    for(; size > 1; size--, p++)	//×¢ÒâÕâÀï±ØĞëÊÇsize > 1,ÒòÎªÏÂÃæ»¹»áÔÙ¶ÁÈ¡Ò»¸ö
+    for(; size > 1; size--, p++)	//æ³¨æ„è¿™é‡Œå¿…é¡»æ˜¯size > 1,å› ä¸ºä¸‹é¢è¿˜ä¼šå†è¯»å–ä¸€ä¸ª
     {
-        *p = i2c_read_byte(1);  //¶ÁÈ¡Êı¾İ
+        *p = i2c_read_byte(1);  //è¯»å–æ•°æ®
     }
     *p = i2c_read_byte(0);
     i2c_stop();
@@ -306,3 +322,35 @@ SYS_RESULT IIC_ReadNByteDirectly(uint8_t sla_addr, uint8_t * pdata, uint8_t size
    return res;
 }
 
+SYS_RESULT TVOC_IIC_ReadNByteDirectly(uint8_t sla_addr, uint8_t * pdata, uint8_t size)
+{
+    uint8_t *p = pdata;
+
+
+       //ä»¥ä¸‹æ­¥éª¤æ˜¯å¯¹IICæ€»çº¿å¤ä½ï¼Œäº§ç”Ÿäº†ä¸€ä¸ªIICåœæ­¢æ—¶åºã€‚é¢„é˜²å¼•è„šç”µå¹³é”™è¯¯å¯¼è‡´IICæ€»çº¿è¯»å–æ•°æ®å‡ºé”™
+	IIC_SCL_L();				
+	SDA_DIR(OUTPUT);
+	IIC_SDA_L();
+	delay_us(6);
+	IIC_SCL_H();
+	delay_us(6);
+	IIC_SDA_H();		
+	delay_us(6);				
+	
+    if(i2c_start()){ INSERT_ERROR_INFO(0); return SYS_FAILED; }
+	
+    i2c_send_byte(sla_addr | IIC_READ); //è¯»æ¨¡å¼
+    if(i2c_wait_ack()){ INSERT_ERROR_INFO(0); return SYS_FAILED; }
+
+    for(; size > 1; size--, p++)	//æ³¨æ„è¿™é‡Œå¿…é¡»æ˜¯size > 1,å› ä¸ºä¸‹é¢è¿˜ä¼šå†è¯»å–ä¸€ä¸ª
+    {
+        *p = i2c_read_byte(1);  //è¯»å–æ•°æ®
+         delay_us(25);
+    }
+    *p = i2c_read_byte(0);
+    delay_us(30);
+    
+     i2c_stop();
+
+	return SYS_SUCCESS;
+}

@@ -81,17 +81,17 @@ uint16_t MAL_Init(uint8_t lun)
 *******************************************************************************/
 uint16_t MAL_Write(uint8_t lun, uint64_t Memory_Offset, uint32_t *Writebuff, uint16_t Transfer_Length)
 {
-	switch(lun)  //ÕâÀï,¸ù¾İlunµÄÖµÈ·¶¨ËùÒª²Ù×÷µÄ´ÅÅÌ
+	switch(lun)  //è¿™é‡Œ,æ ¹æ®lunçš„å€¼ç¡®å®šæ‰€è¦æ“ä½œçš„ç£ç›˜
 	{
 	    #if FLASH_DISK_EN
-	    case FLASH_DISK:  //´ÅÅÌ0Îª SPI FLASHÅÌ
+	    case FLASH_DISK:  //ç£ç›˜0ä¸º SPI FLASHç›˜
 		{
 		    flash_mal_write(lun, Memory_Offset, Writebuff, Transfer_Length);
 		}break;
 		#endif
 
 		#if SD_DISK_EN
-		case SD_DISK:  //´ÅÅÌ1ÎªSD¿¨	
+		case SD_DISK:  //ç£ç›˜1ä¸ºSDå¡	
 		{
 		}break;
 		#endif
@@ -169,7 +169,7 @@ uint16_t MAL_GetStatus (uint8_t lun)
 	  #endif
 
 	  #if SD_DISK_EN
-	  case SD_DISK:  // SD ¿¨
+	  case SD_DISK:  // SD å¡
 	  {
 	  }break;
 	  #endif

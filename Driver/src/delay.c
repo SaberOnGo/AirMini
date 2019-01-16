@@ -202,6 +202,7 @@ WEAK_ATTR void delay_us(uint32_t uSecs)
 	_init_us();
 
 	// Dummy loop with 16 bit count wrap around
+	TIM2->CNT = 0;
 	start = TIM2->CNT;
 	while((TIM2->CNT-start) <= uSecs);
 

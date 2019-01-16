@@ -8,7 +8,7 @@ volatile uint8_t flag10ms = 0;
 	
 void SysTick_Init(void)
 {
-    if(SysTick_Config(SystemCoreClock / 100))  // 10 ms ÖÐ¶ÏÒ»´Î
+    if(SysTick_Config(SystemCoreClock / 100))  // 10 ms ä¸­æ–­ä¸€æ¬¡
     {
         while(1);
     }

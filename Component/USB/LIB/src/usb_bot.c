@@ -61,7 +61,7 @@ extern uint32_t Max_Lun;
 *******************************************************************************/
 void Mass_Storage_In (void)
 {
- 	USB_STATUS_REG|=0X10;//±ê¼ÇÂÖÑ¯
+ 	USB_STATUS_REG|=0X10;//æ ‡è®°è½®è¯¢
   switch (Bot_State)
   {
     case BOT_CSW_Send:
@@ -77,7 +77,7 @@ void Mass_Storage_In (void)
       switch (CBW.CB[0])
       {
         case SCSI_READ10:
-					USB_STATUS_REG|=0X02;//±ê¼ÇÕıÔÚ¶ÁÊı¾İ
+					USB_STATUS_REG|=0X02;//æ ‡è®°æ­£åœ¨è¯»æ•°æ®
           SCSI_Read10_Cmd(CBW.bLUN , SCSI_LBA , SCSI_BlkLen);
           break;
       }
@@ -102,7 +102,7 @@ void Mass_Storage_In (void)
 void Mass_Storage_Out (void)
 {
   uint8_t CMD;
-	USB_STATUS_REG|=0X10;//±ê¼ÇÂÖÑ¯
+	USB_STATUS_REG|=0X10;//æ ‡è®°è½®è¯¢
   CMD = CBW.CB[0];
 
   Data_Len = USB_SIL_Read(EP2_OUT, Bulk_Data_Buff);
@@ -115,7 +115,7 @@ void Mass_Storage_Out (void)
     case BOT_DATA_OUT:
       if (CMD == SCSI_WRITE10)
       {
-				USB_STATUS_REG|=0X01;//±ê¼ÇÕıÔÚĞ´Êı¾İ
+				USB_STATUS_REG|=0X01;//æ ‡è®°æ­£åœ¨å†™æ•°æ®
         SCSI_Write10_Cmd(CBW.bLUN , SCSI_LBA , SCSI_BlkLen);
         break;
       }

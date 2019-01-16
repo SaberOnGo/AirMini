@@ -18,11 +18,11 @@
 
 #ifndef USE_STD_LIB
 #define REG_HSI_CR_HSION_BB  ((uint32_t)0x42420000)
-#define REG_CR_PLLON_BB      ((uint32_t)0x42420060)
+#define REG_CR_PLLON_BB            ((uint32_t)0x42420060)
 
 
 #define ACR_LATENCY_Mask         ((uint32_t)0x00000038)
-#define ACR_PRFTBE_Mask          ((uint32_t)0xFFFFFFEF)
+#define ACR_PRFTBE_Mask           ((uint32_t)0xFFFFFFEF)
 
 #define CFGR_PPRE1_Reset_Mask     ((uint32_t)0xFFFFF8FF)
 #define CFGR_PPRE2_Reset_Mask     ((uint32_t)0xFFFFC7FF)
@@ -258,7 +258,13 @@ static void RCC_PeriphInit(void)
 	STM32_RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC
 		                      | RCC_APB2Periph_GPIOD | RCC_APB2Periph_AFIO, ENABLE);
     //SET_REG_32_BIT(AFIO->MAPR, AFIO_MAPR_PD01_REMAP);   // 使能 PD0, PD1
-	SET_REG_32_BIT(AFIO->MAPR, AFIO_MAPR_SWJ_CFG_JTAGDISABLE); 
+
+       #if GIZWITS_TYPE
+	SET_REG_32_BIT(AFIO->MAPR, AFIO_MAPR_SWJ_CFG_DISABLE); 
+	#else
+       SET_REG_32_BIT(AFIO->MAPR, AFIO_MAPR_SWJ_CFG_JTAGDISABLE); 
+	#endif
+	
 	#endif
 }
 
@@ -269,7 +275,7 @@ static void RCC_PeriphInit(void)
 #include "DHT11.h"
 #include "stm32f1_temp_sensor.h"
 
-#define  SOFT_VERSION    "HV1.125 SV1.47.5"
+#define  SOFT_VERSION    "HV1.127 SV1.51.5"
 
 void AppVersionInfo(uint8_t display_mode)
 {
@@ -316,7 +322,7 @@ void NVIC_Configuration(void)
 #include "BatteryLevel.h"
 #include "ExtiDrv.h"
 #include "RTCDrv.h"
-
+#include "gizwits_port.h"
 
 
 void AppInit(void)
@@ -324,7 +330,7 @@ void AppInit(void)
    //RCC_ClocksTypeDef rcc_clocks;
    
    
-   GLOBAL_DISABLE_IRQ();
+   //GLOBAL_DISABLE_IRQ();
    NVIC_Configuration();
    
    SysClockConfig();  
@@ -334,7 +340,9 @@ void AppInit(void)
    //Uart_Q_Init();
    USART2_Init(FREQ_24MHz, 115200);
    
-   
+#if GIZWITS_TYPE
+       gizwits_user_init();  
+#endif
    
    // 主板管脚初始化
    Board_GpioInit();
@@ -353,8 +361,9 @@ void AppInit(void)
    
    
 #if MODULE_USB_EN   
-   usb_main();
    FatFs_Demo();
+   delay_ms(1000);
+   usb_main();
    SDRR_Init();
 #endif
    // ITempSensor_Init();
@@ -368,7 +377,7 @@ void AppInit(void)
    USART1_Init(FREQ_48MHz, 9600);  // PM2.5接收口
    
    USART3_Init(FREQ_24MHz, 9600);  // HCHO 接收串口
-   GLOBAL_ENABLE_IRQ();
+   //GLOBAL_ENABLE_IRQ();
 
    LCD1602_Init();
    

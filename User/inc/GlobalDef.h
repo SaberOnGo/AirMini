@@ -34,14 +34,24 @@
 #define DEBUG_ADC_EN      0    // ADC 调试
 #define BAT_DEBUG_EN      0    // 电池电量调试
 #define EXTI_DEBUG_EN     0    // 外部中断调试使能(1), 禁止(0)
+#define PM25_DEBUG_EN     0
 #define TVOC_DEBUG_EN     0
 #define RTC_DEBUG_EN      0
 #define DEBUG_KEY_EN      0
-#define FAT_DEBUG_EN      0    // 文件操作调试使能
-#define SYSTEM_DBG_EN     0    // 系统调试输出
+#define SHT_DEBUG_EN      0  // 调试使能: 1; 禁止: 0
+#define FAT_DEBUG_EN      0   // 文件操作调试使能
+#define SYSTEM_DBG_EN     0   // 系统调试输出
+
+
+
+#define GIZ_MCU  1
+#define GIZ_SOC  2
+
 
 // 模式使能
-#define MODULE_USB_EN     1    // USB, FatFs 模式使能(1), 禁止(0)
+#define MODULE_USB_EN     1   // USB, FatFs 模式使能(1), 禁止(0)
+#define MODULE_LCD_EN     1   // 是否使能 LCD 液晶模块
+#define  GIZWITS_TYPE     0 //GIZ_MCU   // Gizwits 模块使能
 
 
 #define os_error(err_info)  //{ printf("err: %s, %s, %d\n", ##err_info, __FILE__, __LINE__); }
@@ -137,6 +147,13 @@
 #define  SD_DISK_EN       0   // SD 卡存储使能
 
 #define  MAX_LUN          0   // MAX_LUN + 1 个可移动磁盘 SD卡+FLASH + ROM FLASH
+
+
+// 是否使用 TVOC 进行校正 甲醛值
+#define  USE_TVOC_CAL    0
+
+
+
 
 typedef enum
 {

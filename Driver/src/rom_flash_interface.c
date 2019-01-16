@@ -49,7 +49,7 @@ uint16_t rom_flash_mal_write_ex(uint8_t lun, uint32_t Memory_Offset, uint32_t * 
 {
 	uint16_t i;
 
-	os_printf("2 w: ad = 0x%x, len = %d\r\n", Memory_Offset, Transfer_Length); //²âÊÔÓÃ
+	os_printf("2 w: ad = 0x%x, len = %d\r\n", Memory_Offset, Transfer_Length); //æµ‹è¯•ç”¨
 	
     for( i = 0; i < Transfer_Length; i += ROM_FLASH_PAGE_SIZE )
     { 
@@ -78,7 +78,7 @@ uint16_t rom_flash_mal_write(uint8_t lun, uint32_t Memory_Offset, uint32_t *Writ
 {
 	uint16_t i;
 
-    os_printf("0 w: ad = 0x%x, len = %d\r\n", Memory_Offset, Transfer_Length); //²âÊÔÓÃ
+    os_printf("0 w: ad = 0x%x, len = %d\r\n", Memory_Offset, Transfer_Length); //æµ‹è¯•ç”¨
 	for( i = 0; i < Transfer_Length; i += ROM_FLASH_PAGE_SIZE )
 	{ 
 		if( FLASH_WaitForLastOperation(ROM_FLASH_WAIT_TIMEOUT) != FLASH_TIMEOUT )
@@ -103,7 +103,7 @@ uint16_t rom_flash_mal_read(uint8_t lun, uint32_t Memory_Offset, uint32_t * Read
 {
 	uint16_t i;
 
-    os_printf("0 r: ad = 0x%x, len = %d\r\n", Memory_Offset, Transfer_Length); //²âÊÔÓÃ
+    os_printf("0 r: ad = 0x%x, len = %d\r\n", Memory_Offset, Transfer_Length); //æµ‹è¯•ç”¨
 	for(i = 0; i < Transfer_Length; i += 4)
 	{
 		Readbuff[i >> 2] = ((vu32*)(ROM_FLASH_START_ADDR + Memory_Offset))[i >> 2]; 
@@ -116,7 +116,7 @@ uint16_t rom_flash_mal_read(uint8_t lun, uint32_t Memory_Offset, uint32_t * Read
   * @brief  Reads Sector(s)
   * @param  lun : not used
   * @param  *buff: Data buffer to store read data
-  * @param  sector: Sector address (LBA), ÉÈÇøºÅ: 0-N
+  * @param  sector: Sector address (LBA), æ‰‡åŒºå·: 0-N
   * @param  count: Number of sectors to read (1..128)
   * @retval DRESULT: Operation result
   */
@@ -132,9 +132,9 @@ DRESULT rom_flash_disk_read(BYTE lun, BYTE * buff, DWORD sector, UINT count)
    return RES_OK;
 }
 
-// ¹¦ÄÜ: Ìá¹©¸ø fatfs µÄdisk write Ğ´Êı¾İ½Ó¿Ú
-// DWORD sector: ÆğÊ¼ÉÈÇøºÅ, 0-N
-// UINT  count:  ĞèÒªĞ´ÈëµÄÉÈÇø×ÜÊı
+// åŠŸèƒ½: æä¾›ç»™ fatfs çš„disk write å†™æ•°æ®æ¥å£
+// DWORD sector: èµ·å§‹æ‰‡åŒºå·, 0-N
+// UINT  count:  éœ€è¦å†™å…¥çš„æ‰‡åŒºæ€»æ•°
 DRESULT rom_flash_disk_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
 {
    uint16_t i;

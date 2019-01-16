@@ -22,10 +22,10 @@ void LED_Init(void)
 	GPIO_InitStructure.GPIO_Pin = LED_YELLOW_GPIO_Pin;
     GPIO_Init(LED_YELLOW_PORT, &GPIO_InitStructure);
 
-	PWR_BackupAccessCmd(ENABLE);  //ÔÊĞíĞŞ¸ÄRTC ºÍºó±¸¼Ä´æÆ÷
-    RCC_LSEConfig(RCC_LSE_OFF);   //¹Ø±ÕÍâ²¿µÍËÙÍâ²¿Ê±ÖÓĞÅºÅ¹¦ÄÜ ºó£¬PC13 PC14 PC15 ²Å¿ÉÒÔµ±ÆÕÍ¨IOÓÃ¡£
-    BKP_TamperPinCmd(DISABLE);    //¹Ø±ÕÈëÇÖ¼ì²â¹¦ÄÜ£¬Ò²¾ÍÊÇ PC13£¬Ò²¿ÉÒÔµ±ÆÕÍ¨IO Ê¹ÓÃ
-    PWR_BackupAccessCmd(DISABLE); //½ûÖ¹ĞŞ¸Äºó±¸¼Ä´æÆ÷
+	PWR_BackupAccessCmd(ENABLE);  //å…è®¸ä¿®æ”¹RTC å’Œåå¤‡å¯„å­˜å™¨
+    RCC_LSEConfig(RCC_LSE_OFF);   //å…³é—­å¤–éƒ¨ä½é€Ÿå¤–éƒ¨æ—¶é’Ÿä¿¡å·åŠŸèƒ½ åï¼ŒPC13 PC14 PC15 æ‰å¯ä»¥å½“æ™®é€šIOç”¨ã€‚
+    BKP_TamperPinCmd(DISABLE);    //å…³é—­å…¥ä¾µæ£€æµ‹åŠŸèƒ½ï¼Œä¹Ÿå°±æ˜¯ PC13ï¼Œä¹Ÿå¯ä»¥å½“æ™®é€šIO ä½¿ç”¨
+    PWR_BackupAccessCmd(DISABLE); //ç¦æ­¢ä¿®æ”¹åå¤‡å¯„å­˜å™¨
 
 	LED_AllClose();
 }
@@ -57,7 +57,7 @@ void LED_AllSet(E_LED_STATE state)
 static os_timer_t tLedTimer;
 static uint8_t led_state = LED_CLOSE;
 
-// Í£Ö¹LED Ö¸Ê¾
+// åœæ­¢LED æŒ‡ç¤º
 void LED_StopAqiIndicate(void)
 {
     os_timer_disarm(&tLedTimer);
@@ -71,7 +71,7 @@ static void LedTimer_CallBack(void * arg)
 	if(*level == AQI_JustInHell)
 	{
 	   LED_AllClose();
-	   if(led_state == LED_CLOSE)  // ÉÏÒ»´Î¹ØµÆ
+	   if(led_state == LED_CLOSE)  // ä¸Šä¸€æ¬¡å…³ç¯
 	   {
 	      led_state = LED_OPEN;
 		  LED_Config(LED_YELLOW, LED_OPEN);
@@ -81,7 +81,7 @@ static void LedTimer_CallBack(void * arg)
 	   {
 	      led_state = LED_CLOSE;
 	   }
-	   os_timer_arm(&tLedTimer, 50, 0);  // 500 ms ¶¨Ê±
+	   os_timer_arm(&tLedTimer, 50, 0);  // 500 ms å®šæ—¶
 	}
 	else
 	{
@@ -92,7 +92,7 @@ static void LedTimer_CallBack(void * arg)
           LED_AllOpen();
 	   }
 	   else{ led_state = LED_CLOSE; }
-	   os_timer_arm(&tLedTimer, 15, 0);  // 150 ms ¶¨Ê±
+	   os_timer_arm(&tLedTimer, 15, 0);  // 150 ms å®šæ—¶
 	}
 }
 
@@ -130,19 +130,19 @@ void LED_AqiIndicate(E_AQI_LEVEL level)
 		  LED_Config(LED_YELLOW, LED_OPEN);
 		  LED_Config(LED_RED, LED_OPEN);
 	   	  os_timer_setfn(&tLedTimer, LedTimer_CallBack, &level);
-		  os_timer_arm(&tLedTimer, 50, 0);  // 500 ms ¶¨Ê±
+		  os_timer_arm(&tLedTimer, 50, 0);  // 500 ms å®šæ—¶
 	   }break;
 	   case AQI_HeavyInHell:  
 	   {
 	   	  led_state = LED_OPEN;
 		  LED_AllOpen();
 	   	  os_timer_setfn(&tLedTimer, LedTimer_CallBack, &level);
-		  os_timer_arm(&tLedTimer, 15, 0);  // 150 ms ¶¨Ê±
+		  os_timer_arm(&tLedTimer, 15, 0);  // 150 ms å®šæ—¶
 	   }break;
    }
 }
 
-static os_timer_t tLedFlashTimer;  // LED ÉÁË¸¶¨Ê±Æ÷
+static os_timer_t tLedFlashTimer;  // LED é—ªçƒå®šæ—¶å™¨
 static uint16_t flashTimes = 0;    
 static uint8_t  flashFlag = 0;
 static void LedFlashTimer_CallBack(void * arg)
@@ -164,8 +164,8 @@ static void LedFlashTimer_CallBack(void * arg)
    flashFlag ^= 1;
 }
 
-// LED ÉÁË¸
-// ²ÎÊı: uint16_t times: ÉÁË¸´ÎÊı
+// LED é—ªçƒ
+// å‚æ•°: uint16_t times: é—ªçƒæ¬¡æ•°
 void LED_Flash(uint16_t times)
 {
    if(times)

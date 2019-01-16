@@ -26,15 +26,15 @@ void USART1_Init(uint32_t baudrate)
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
     GPIO_Init(GPIOA, &GPIO_InitStructure);  
 	
-    //Usart1 NVIC ÅäÖÃ
+    //Usart1 NVIC é…ç½®
     /* Configure the NVIC Preemption Priority Bits */  
     NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;		
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQÍ¨µÀÊ¹ÄÜ
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQé€šé“ä½¿èƒ½
 	NVIC_Init(&NVIC_InitStructure);	
 
-    // ´®¿ÚÍâÉè³õÊ¼»¯
+    // ä¸²å£å¤–è®¾åˆå§‹åŒ–
     USART_InitStructure.USART_BaudRate = baudrate;
     USART_InitStructure.USART_WordLength = USART_WordLength_8b;
     USART_InitStructure.USART_StopBits = USART_StopBits_1;
@@ -43,7 +43,7 @@ void USART1_Init(uint32_t baudrate)
     USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
     USART_Init(USART1, &USART_InitStructure);
 
-    USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);  // ½ÓÊÕÖÐ¶ÏÊ¹ÄÜ
+    USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);  // æŽ¥æ”¶ä¸­æ–­ä½¿èƒ½
     //USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
     USART_Cmd(USART1, ENABLE);     
 }
@@ -70,12 +70,12 @@ void USART2_Init(uint32_t baudrate)
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
     GPIO_Init(GPIOA, &GPIO_InitStructure);
 	
-	//Usart NVIC ÅäÖÃ
+	//Usart NVIC é…ç½®
     /* Configure the NVIC Preemption Priority Bits */  
     NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;		
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQÍ¨µÀÊ¹ÄÜ
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQé€šé“ä½¿èƒ½
 	NVIC_Init(&NVIC_InitStructure);	
 	
 	/* USART2 mode config */
@@ -115,12 +115,12 @@ void USART3_Init(uint32_t baudrate)
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
     GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-	//Usart NVIC ÅäÖÃ
+	//Usart NVIC é…ç½®
     /* Configure the NVIC Preemption Priority Bits */  
     NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 3;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;		
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQÍ¨µÀÊ¹ÄÜ
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQé€šé“ä½¿èƒ½
 	NVIC_Init(&NVIC_InitStructure);	
 
 	/* USART mode config */
@@ -138,64 +138,64 @@ void USART3_Init(uint32_t baudrate)
 	USART_Cmd(USART3, ENABLE);
 }
 #else
-// Ä¬ÈÏ: Ò»¸öÆðÊ¼Î»£¬8¸öÊý¾ÝÎ»£¬n¸öÍ£Ö¹Î», ÎÞÐ£ÑéÎ», ÎÞÓ²¼þÁ÷¿ØÖÆ
-// USART2, 3, 4, 5: PCLK1, ÕâÀïÎª 24MHz; USART1: PCLK2: 48MHz
+// é»˜è®¤: ä¸€ä¸ªèµ·å§‹ä½ï¼Œ8ä¸ªæ•°æ®ä½ï¼Œnä¸ªåœæ­¢ä½, æ— æ ¡éªŒä½, æ— ç¡¬ä»¶æµæŽ§åˆ¶
+// USART2, 3, 4, 5: PCLK1, è¿™é‡Œä¸º 24MHz; USART1: PCLK2: 48MHz
 void USART1_Init(uint32_t freq, uint32_t baudrate)
 {
-    RCC->APB2RSTR |=  RCC_APB2RSTR_USART1RST;		            //´®¿Ú1¸´Î»
-	RCC->APB2RSTR &=~ RCC_APB2RSTR_USART1RST;		            //´®¿Ú1Í£Ö¹¸´Î»
+       RCC->APB2RSTR |=  RCC_APB2RSTR_USART1RST;		            //ä¸²å£1å¤ä½
+	RCC->APB2RSTR &=~ RCC_APB2RSTR_USART1RST;		            //ä¸²å£1åœæ­¢å¤ä½
 
-	SET_REG_32_BIT(RCC->APB2ENR, RCC_APB2Periph_GPIOA);		// Ê¹ÄÜ GPIOA Ê±ÖÓ
-	SET_REG_32_BIT(RCC->APB2ENR, RCC_APB2Periph_USART1);     // ´®¿Ú1Ê±ÖÓÊ¹ÄÜ
-	GPIOA->CRH = (GPIOA->CRH & 0xFFFFF00F) + 0x000004B0;		// PA9: TX, ¸´ÓÃÍÆÍìÊä³ö; PA10: RX, ¸¡¿ÕÊäÈë					    
+	SET_REG_32_BIT(RCC->APB2ENR, RCC_APB2Periph_GPIOA);		// ä½¿èƒ½ GPIOA æ—¶é’Ÿ
+	SET_REG_32_BIT(RCC->APB2ENR, RCC_APB2Periph_USART1);     // ä¸²å£1æ—¶é’Ÿä½¿èƒ½
+	GPIOA->CRH = (GPIOA->CRH & 0xFFFFF00F) + 0x000004B0;		// PA9: TX, å¤ç”¨æŽ¨æŒ½è¾“å‡º; PA10: RX, æµ®ç©ºè¾“å…¥					    
 
-	//USART1->BRR  = FREQ_48MHz / baudrate;  //²¨ÌØÂÊÅäÖÃÎªBaudRate
-	USART1->BRR  = freq / baudrate;  //²¨ÌØÂÊÅäÖÃÎªBaudRate
+	//USART1->BRR  = FREQ_48MHz / baudrate;  //æ³¢ç‰¹çŽ‡é…ç½®ä¸ºBaudRate
+	USART1->BRR  = freq / baudrate;  //æ³¢ç‰¹çŽ‡é…ç½®ä¸ºBaudRate
 	
 	USART1->CR1 |= (USART_CR1_UE | USART_Mode_Rx | USART_Mode_Tx);
-	USART1->CR1 |= USART_CR1_RXNEIE;	    // ½ÓÊÕÖÐ¶ÏÊ¹ÄÜ
-	//USART1->CR1 |= USART_CR1_TXEIE;     // ·¢ËÍ¿ÕÖÐ¶ÏÊ¹ÄÜ
+	USART1->CR1 |= USART_CR1_RXNEIE;	    // æŽ¥æ”¶ä¸­æ–­ä½¿èƒ½
+	//USART1->CR1 |= USART_CR1_TXEIE;     // å‘é€ç©ºä¸­æ–­ä½¿èƒ½
 	
-	STM32_NVICInit(USART1_IRQn, 3, 5, 0);  // µÚ3×éÓÅÏÈ¼¶, 3Î»ÇÀÕ¼ÓÅÏÈ¼¶, 1Î»ÏìÓ¦ÓÅÏÈ¼¶
+	STM32_NVICInit(USART1_IRQn, 3, 5, 0);  // ç¬¬3ç»„ä¼˜å…ˆçº§, 3ä½æŠ¢å ä¼˜å…ˆçº§, 1ä½å“åº”ä¼˜å…ˆçº§
 }
 
 void USART2_Init(uint32_t freq, uint32_t baudrate)
 {
-    RCC->APB1RSTR |=  RCC_APB1RSTR_USART2RST;		            // ´®¿Ú2¸´Î»
-	RCC->APB1RSTR &=~ RCC_APB1RSTR_USART2RST;		            // ´®¿Ú2Í£Ö¹¸´Î»
+       RCC->APB1RSTR |=  RCC_APB1RSTR_USART2RST;		            // ä¸²å£2å¤ä½
+	RCC->APB1RSTR &=~ RCC_APB1RSTR_USART2RST;		            // ä¸²å£2åœæ­¢å¤ä½
 	
-	SET_REG_32_BIT(RCC->APB2ENR, RCC_APB2Periph_GPIOA);		//Ê¹ÄÜ GPIOA Ê±ÖÓ
-	SET_REG_32_BIT(RCC->APB1ENR, RCC_APB1Periph_USART2);		//´®¿Ú2Ê±ÖÓÊ¹ÄÜ
-	GPIOA->CRL = (GPIOA->CRL & 0xFFFF00FF) + 0x00004B00;		//PA2: TX, ¸´ÓÃÍÆÍìÊä³ö; PA3: RX, ¸¡¿ÕÊäÈë
+	SET_REG_32_BIT(RCC->APB2ENR, RCC_APB2Periph_GPIOA);		//ä½¿èƒ½ GPIOA æ—¶é’Ÿ
+	SET_REG_32_BIT(RCC->APB1ENR, RCC_APB1Periph_USART2);		//ä¸²å£2æ—¶é’Ÿä½¿èƒ½
+	GPIOA->CRL = (GPIOA->CRL & 0xFFFF00FF) + 0x00004B00;		//PA2: TX, å¤ç”¨æŽ¨æŒ½è¾“å‡º; PA3: RX, æµ®ç©ºè¾“å…¥
 
-	USART2->BRR  = freq / baudrate;  //²¨ÌØÂÊÅäÖÃÎªBaudRate
+	USART2->BRR  = freq / baudrate;  //æ³¢ç‰¹çŽ‡é…ç½®ä¸ºBaudRate
 	
 	//USART2->CR1 |= (USART_CR1_UE | USART_Mode_Rx | USART_Mode_Tx);
 	USART2->CR1 |= (USART_CR1_UE | USART_Mode_Tx);
 	
-	//USART2->CR1 |= USART_CR1_RXNEIE;	// ½ÓÊÕÖÐ¶ÏÊ¹ÄÜ
-	//USART2->CR1 |= USART_CR1_TXEIE;     // ·¢ËÍ¿ÕÖÐ¶ÏÊ¹ÄÜ
+	//USART2->CR1 |= USART_CR1_RXNEIE;	// æŽ¥æ”¶ä¸­æ–­ä½¿èƒ½
+	//USART2->CR1 |= USART_CR1_TXEIE;     // å‘é€ç©ºä¸­æ–­ä½¿èƒ½
 	
-	STM32_NVICInit(USART2_IRQn, 3, 5, 1);   // µÚ3×éÓÅÏÈ¼¶, 3Î»ÇÀÕ¼ÓÅÏÈ¼¶, 1Î»ÏìÓ¦ÓÅÏÈ¼¶
+	STM32_NVICInit(USART2_IRQn, 3, 5, 1);   // ç¬¬3ç»„ä¼˜å…ˆçº§, 3ä½æŠ¢å ä¼˜å…ˆçº§, 1ä½å“åº”ä¼˜å…ˆçº§
 }
 
 void USART3_Init(uint32_t freq, uint32_t baudrate)
 {
-    RCC->APB1RSTR |=  RCC_APB1RSTR_USART3RST;		            //´®¿Ú3¸´Î»
-	RCC->APB1RSTR &=~ RCC_APB1RSTR_USART3RST;		            //´®¿Ú3Í£Ö¹¸´Î»
+       RCC->APB1RSTR |=  RCC_APB1RSTR_USART3RST;		            //ä¸²å£3å¤ä½
+	RCC->APB1RSTR &=~ RCC_APB1RSTR_USART3RST;		            //ä¸²å£3åœæ­¢å¤ä½
 	
-	SET_REG_32_BIT(RCC->APB2ENR, RCC_APB2Periph_GPIOB);       //Ê¹ÄÜ GPIOB Ê±ÖÓ
-	SET_REG_32_BIT(RCC->APB1ENR, RCC_APB1Periph_USART3);		//´®¿Ú3Ê±ÖÓÊ¹ÄÜ
-	GPIOB->CRH = (GPIOB->CRH & 0xFFFF00FF) + 0x00004B00;		//PB10: TX, ¸´ÓÃÍÆÍìÊä³ö; PB11: RX, ¸¡¿ÕÊäÈë	
+	SET_REG_32_BIT(RCC->APB2ENR, RCC_APB2Periph_GPIOB);       //ä½¿èƒ½ GPIOB æ—¶é’Ÿ
+	SET_REG_32_BIT(RCC->APB1ENR, RCC_APB1Periph_USART3);		//ä¸²å£3æ—¶é’Ÿä½¿èƒ½
+	GPIOB->CRH = (GPIOB->CRH & 0xFFFF00FF) + 0x00004B00;		//PB10: TX, å¤ç”¨æŽ¨æŒ½è¾“å‡º; PB11: RX, æµ®ç©ºè¾“å…¥	
 	
-	//USART3->BRR  = FREQ_24MHz / baudrate;  //²¨ÌØÂÊÅäÖÃÎªBaudRate
-	USART3->BRR  = freq / baudrate;  //²¨ÌØÂÊÅäÖÃÎªBaudRate
+	//USART3->BRR  = FREQ_24MHz / baudrate;  //æ³¢ç‰¹çŽ‡é…ç½®ä¸ºBaudRate
+	USART3->BRR  = freq / baudrate;  //æ³¢ç‰¹çŽ‡é…ç½®ä¸ºBaudRate
 	
 	USART3->CR1 |= (USART_CR1_UE | USART_Mode_Rx | USART_Mode_Tx);
-	USART3->CR1 |= USART_CR1_RXNEIE;	   // ½ÓÊÕÖÐ¶ÏÊ¹ÄÜ
-	//USARTx->CR1 |= USART_CR1_TXEIE;     // ·¢ËÍ¿ÕÖÐ¶ÏÊ¹ÄÜ
+	USART3->CR1 |= USART_CR1_RXNEIE;	   // æŽ¥æ”¶ä¸­æ–­ä½¿èƒ½
+	//USARTx->CR1 |= USART_CR1_TXEIE;     // å‘é€ç©ºä¸­æ–­ä½¿èƒ½
 	
-	STM32_NVICInit(USART3_IRQn, 3, 5, 1);  // µÚ3×éÓÅÏÈ¼¶, 3Î»ÇÀÕ¼ÓÅÏÈ¼¶, 1Î»ÏìÓ¦ÓÅÏÈ¼¶
+	STM32_NVICInit(USART3_IRQn, 3, 5, 1);  // ç¬¬3ç»„ä¼˜å…ˆçº§, 3ä½æŠ¢å ä¼˜å…ˆçº§, 1ä½å“åº”ä¼˜å…ˆçº§
 }
 #endif
 
@@ -207,21 +207,15 @@ void USART3_Init(uint32_t freq, uint32_t baudrate)
 
 int fputc(int ch, FILE *f)
 {
-  // uint16_t count = 0xFFF;
-   
-  /* Place your implementation of fputc here */
-  /* e.g. write a character to the USART */
-  #if (PRINTF_OUT_SEL == UART_BLOCK)
-  QUEUE_UART->DR = (ch & (uint16_t)0x01FF);
+
+  #if 0
   
-  /* Loop until the end of transmission */
-  //while (USART_GetFlagStatus(QUEUE_UART, USART_FLAG_TXE) == RESET);
+  QUEUE_UART->DR = (ch & (uint16_t)0x01FF);
   while (!(QUEUE_UART->SR & USART_FLAG_TXE));
-  #else
-  Uart_SendByte(ch);
+
   #endif
   
-  return ch;
+  return 0;
 }
 
 #else
@@ -236,39 +230,11 @@ void os_print(char * s)
 #endif
 
 
-void USART1_IRQHandler(void)
-{ 
-   #if  (PM25_SEL == 1)
-   PM25_UART_IRQHandler();
-   #elif (HCHO_SEL == 1)
-   HCHO_UART_IRQHandler();
-   #elif (QUEUE_SEL == 1)
-   Queue_UART_IRQHandler();
-   #endif
-}
 
-void USART2_IRQHandler(void)
-{
-   #if  (PM25_SEL == 2)
-   PM25_UART_IRQHandler();
-   #elif (HCHO_SEL == 2)
-   HCHO_UART_IRQHandler();
-   #elif (QUEUE_SEL == 2)
-   Queue_UART_IRQHandler();
-   #endif
 
-}
 
-void USART3_IRQHandler(void)
-{
-   #if  (PM25_SEL == 3)
-   PM25_UART_IRQHandler();
-   #elif (HCHO_SEL == 3)
-   HCHO_UART_IRQHandler();
-   #elif (QUEUE_SEL == 3)
-   Queue_UART_IRQHandler();
-   #endif
-}
+
+
 
 
 

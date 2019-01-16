@@ -36,16 +36,16 @@ typedef enum
 #define LED_RED_Set(val)       GPIO_WriteBit(LED_RED_PORT, LED_RED_GPIO_Pin,\
 	(val == LED_OPEN)? Bit_SET: Bit_RESET)
 
-// ¶ÔÓ¦ PM25 µÄLEDµÈ¼¶, 7¼¶
+// å¯¹åº” PM25 çš„LEDç­‰çº§, 7çº§
 typedef enum
 {
-   AQI_GOOD = 0,           // ÓÅ,      ÂÌµÆ
-   AQI_Moderate = 1,       // ÖĞµÈ,    ÂÌ»ÆµÆ
-   AQI_LightUnhealthy = 2, // Çá¶ÈÎÛÈ¾, »ÆµÆ
-   AQI_MidUnhealthy = 3,   // ÖĞ¶ÈÎÛÈ¾, »ÆµÆ
-   AQI_VeryUnhealthy = 4,  // ÖØ¶ÈÎÛÈ¾, ºìµÆ
-   AQI_JustInHell    = 5,  // ¸Õ½øÈëµØÓü,   »Æ ºìµÆÂıÉÁ
-   AQI_HeavyInHell   = 6,  // Éî¶ÈµØÓüÄ£Ê½, 3µÆ¿ñÉÁ
+   AQI_GOOD = 0,           // ä¼˜,      ç»¿ç¯
+   AQI_Moderate = 1,       // ä¸­ç­‰,    ç»¿é»„ç¯
+   AQI_LightUnhealthy = 2, // è½»åº¦æ±¡æŸ“, é»„ç¯
+   AQI_MidUnhealthy = 3,   // ä¸­åº¦æ±¡æŸ“, é»„ç¯
+   AQI_VeryUnhealthy = 4,  // é‡åº¦æ±¡æŸ“, çº¢ç¯
+   AQI_JustInHell    = 5,  // åˆšè¿›å…¥åœ°ç‹±,   é»„ çº¢ç¯æ…¢é—ª
+   AQI_HeavyInHell   = 6,  // æ·±åº¦åœ°ç‹±æ¨¡å¼, 3ç¯ç‹‚é—ª
    AQI_LEVEL_END,
 }E_AQI_LEVEL;
 

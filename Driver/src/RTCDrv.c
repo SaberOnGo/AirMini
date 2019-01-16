@@ -269,6 +269,10 @@ void RTCDrv_Init(void)
 
 #else  // #ifdef USE_STD_LIB
     RTC_NVIC_Config();
+
+	RCC_APB1PeriphClockCmd_Enable_PWR_BKP();				/* Enable PWR and BKP clocks */
+	*(__IO uint32_t *) RTCDRV_CR_DBP_BB = (uint32_t)ENABLE;	/* Allow access to BKP Domain */
+
 	if (RTCDRV_BKP_ReadBackupRegister(BKP_DR1) != 0xA5A5)
     {
        RTC_DEBUG("\r\n\n RTC not yet configured....");
@@ -295,7 +299,8 @@ void RTCDrv_Init(void)
            RTC_DEBUG("\r\n\n External Reset occurred....");
        }
        RTC_DEBUG("\r\n No need to configure RTC....");
-      
+
+	   RCC->CSR |= RCC_CSR_RMVF;
        ret = RTCDRV_WaitForSynchro();   /* Wait for RTC registers synchronization */
        if(ret){ RTC_DEBUG("WaitForSync Failed: %s, %d\r\n", __FILE__, __LINE__); }
 	   
@@ -331,9 +336,10 @@ const uint8_t mon_table[12] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
 *************************/
 static uint32_t RTCDrv_CalendarToSec(uint16_t fromYear, T_Calendar_Obj * cal)
 {
-    uint16_t t;
-	uint32_t seccount = 0;
-
+      uint16_t t;
+      uint32_t seccount = 0;
+      uint8_t month_idx;
+      
     #if RTC_DEBUG_EN
 	if(fromYear < 1970 || fromYear > 2099 || NULL == cal)
 		{ RTC_DEBUG("param err: %s, %d\r\n", __FILE__, __LINE__);  return 1; }
@@ -344,8 +350,9 @@ static uint32_t RTCDrv_CalendarToSec(uint16_t fromYear, T_Calendar_Obj * cal)
 		if(IS_LEAP_YEAR(t))seccount += 31622400;  //闰年的秒钟数
 		else seccount += 31536000;			       //平年的秒钟数
 	}
-	cal->month -= 1;
-	for(t = 0; t < cal->month; t++)	   //把前面月份的秒钟数相加
+
+	month_idx = cal->month - 1;
+	for(t = 0; t < month_idx; t++)	   //把前面月份的秒钟数相加
 	{
 		seccount += (uint32_t)mon_table[t] * 86400;  //月份秒钟数相加, 86400 为一天的秒数
 		if(IS_LEAP_YEAR(cal->year) && t == 1)seccount += 86400;  //闰年2月份增加一天的秒钟数	   
@@ -542,8 +549,9 @@ uint8_t RTCDrv_GetTime(T_Calendar_Obj * cal)
 		one_more_day = E_TRUE;
     }
  	RTCDrv_SecToCalendar(1970, sec, cal, one_more_day);
+#if (! USE_TVOC_CAL)
 	TIME_SetSensorExisted(E_TRUE);
-	
+#endif
 	return 0;
 }	 	  
 

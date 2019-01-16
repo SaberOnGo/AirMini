@@ -53,7 +53,7 @@ void usb_main(void)
 
 		os_printf("USB config sta = %d\r\n", bDeviceState);
 		
-	    //¹Ø±ÕUSB ½ÓÊÕºÍ·¢ËÍÖĞ¶Ï
+	    //å…³é—­USB æ¥æ”¶å’Œå‘é€ä¸­æ–­
 	    //NVIC_DisableIRQ(USB_LP_CAN1_RX0_IRQn);
 	    //NVIC_DisableIRQ(USB_HP_CAN1_TX_IRQn);
  

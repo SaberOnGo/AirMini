@@ -9,54 +9,62 @@
 #include "SDRR.h"
 
 
-#define SHT_DEBUG_EN   1  // µ÷ÊÔÊ¹ÄÜ: 1; ½ûÖ¹: 0
 
-#ifdef USING_NOS_TIMER 
-#define SHT_USING_NOS_TIMER   1   // SHT20 µÄÈí¼ş¶¨Ê±Æ÷ Ê¹ÓÃ ucos µÄ¶¨Ê±Æ÷
+
+
+#if SHT_DEBUG_EN
+#define sht_printf(fmt, ...)  printf(fmt, ##__VA_ARGS__)
+#else
+#define sht_printf(...)
 #endif
 
-#define SHT20_I2C_ADDR  0x80    // SHT20 I2CÉè±¸µØÖ·
+
+#ifdef USING_NOS_TIMER 
+#define SHT_USING_NOS_TIMER   1   // SHT20 çš„è½¯ä»¶å®šæ—¶å™¨ ä½¿ç”¨ ucos çš„å®šæ—¶å™¨
+#endif
+
+#define SHT20_I2C_ADDR  0x80    // SHT20 I2Cè®¾å¤‡åœ°å€
 
 
 
-#define SHT_T_Hold_CMD        0xE3   // ÎÂ¶È²âÁ¿, ±£³ÖÖ÷»ú
-#define SHT_RH_Hold_CMD       0xE5   // Êª¶È²âÁ¿, ±£³ÖÖ÷»ú
+#define SHT_T_Hold_CMD        0xE3   // æ¸©åº¦æµ‹é‡, ä¿æŒä¸»æœº
+#define SHT_RH_Hold_CMD       0xE5   // æ¹¿åº¦æµ‹é‡, ä¿æŒä¸»æœº
 
-#define SHT_T_NotHold_CMD     0xF3   // ÎÂ¶È²âÁ¿, ·Ç±£³ÖÖ÷»ú
-#define SHT_RH_NotHold_CMD    0xF5   // Êª¶È²âÁ¿, ·Ç±£³ÖÖ÷»ú
+#define SHT_T_NotHold_CMD     0xF3   // æ¸©åº¦æµ‹é‡, éä¿æŒä¸»æœº
+#define SHT_RH_NotHold_CMD    0xF5   // æ¹¿åº¦æµ‹é‡, éä¿æŒä¸»æœº
 
-#define SHT_WriteReg_CMD      0xE6   // Ğ´ÓÃ»§¼Ä´æÆ÷
-#define SHT_ReadReg_CMD       0xE7   // ¶ÁÓÃ»§¼Ä´æÆ÷
+#define SHT_WriteReg_CMD      0xE6   // å†™ç”¨æˆ·å¯„å­˜å™¨
+#define SHT_ReadReg_CMD       0xE7   // è¯»ç”¨æˆ·å¯„å­˜å™¨
 
-#define SHT_SoftReset_CMD     0xFE   // Èí¸´Î»
+#define SHT_SoftReset_CMD     0xFE   // è½¯å¤ä½
 
-// Êı¾İ¼Ä´æÆ÷Î»¶¨Òå
-#define SHT_DATA_REG_STA_BitMask       0x02  // Êı¾İ×Ö½ÚµÄµÍ°ËÎ»µÄ×´Ì¬Î»(bit 1)ÑÚÂë
+// æ•°æ®å¯„å­˜å™¨ä½å®šä¹‰
+#define SHT_DATA_REG_STA_BitMask       0x02  // æ•°æ®å­—èŠ‚çš„ä½å…«ä½çš„çŠ¶æ€ä½(bit 1)æ©ç 
 
 #define SHT_DATA_REG_STA_Bit_IsTemp    0x00  // bit1: 0
 #define SHT_DATA_REG_STA_Bit_IsHumi    0x02  // bit1: 1
 
-// ÓÃ»§¼Ä´æÆ÷Î»¶¨Òå
+// ç”¨æˆ·å¯„å­˜å™¨ä½å®šä¹‰
 
-//ÎÂÊª¶È²âÁ¿¾«¶ÈÉèÖÃµÄÑÚÂëÎ»
-#define SHT_USER_REG_RH_T_BitMask       0x81   // ²âÁ¿ÉèÖÃÑÚÂë£º bit7, bit0
+//æ¸©æ¹¿åº¦æµ‹é‡ç²¾åº¦è®¾ç½®çš„æ©ç ä½
+#define SHT_USER_REG_RH_T_BitMask       0x81   // æµ‹é‡è®¾ç½®æ©ç ï¼š bit7, bit0
 
-#define SHT_USER_REG_RH12_T14   0x00   // Êª¶È²âÁ¿ 12 bit, ÎÂ¶È²âÁ¿ 14bit
-#define SHT_USER_REG_RH8_T12    0x01   // Êª¶È²âÁ¿8bit, ÎÂ¶È²âÁ¿ 12bit
-#define SHT_USER_REG_RH10_T13   0x80   // Êª¶È²âÁ¿ 10bit, ÎÂ¶È²âÁ¿ 13bit
-#define SHT_USER_REG_RH11_T11   0x81   // Êª¶È²âÁ¿ 11bit, ÎÂ¶È²âÁ¿ 11bit 
+#define SHT_USER_REG_RH12_T14   0x00   // æ¹¿åº¦æµ‹é‡ 12 bit, æ¸©åº¦æµ‹é‡ 14bit
+#define SHT_USER_REG_RH8_T12    0x01   // æ¹¿åº¦æµ‹é‡8bit, æ¸©åº¦æµ‹é‡ 12bit
+#define SHT_USER_REG_RH10_T13   0x80   // æ¹¿åº¦æµ‹é‡ 10bit, æ¸©åº¦æµ‹é‡ 13bit
+#define SHT_USER_REG_RH11_T11   0x81   // æ¹¿åº¦æµ‹é‡ 11bit, æ¸©åº¦æµ‹é‡ 11bit 
 
-// µç³Ø×´Ì¬ÑÚÂëÎ», bit6
+// ç”µæ± çŠ¶æ€æ©ç ä½, bit6
 #define SHT_USER_REG_EndOfBat_BitMask         0x40   
 
-#define SHT_USER_REG_EndOfBat_MoreThan2P25V    0x00   // µç³ØµçÑ¹´óÓÚ 2.25 V
-#define SHT_USER_REG_EndOfBat_LessThan2P25V    0x40   // µç³ØµçÑ¹Ğ¡ÓÚ 2.25 V
+#define SHT_USER_REG_EndOfBat_MoreThan2P25V    0x00   // ç”µæ± ç”µå‹å¤§äº 2.25 V
+#define SHT_USER_REG_EndOfBat_LessThan2P25V    0x40   // ç”µæ± ç”µå‹å°äº 2.25 V
 
-// Æ¬ÉÏ¼ÓÈÈÆ÷×´Ì¬ÑÚÂëÎ»
+// ç‰‡ä¸ŠåŠ çƒ­å™¨çŠ¶æ€æ©ç ä½
 #define SHT_USER_REG_Heat_BitMask   0x04             
 
-#define SHT_USER_REG_Heat_OnLine    0x04             // ÔÚ¼ÓÈÈ
-#define SHT_USER_REG_Heat_OffLine   0x00             // ÎŞ¼ÓÈÈ
+#define SHT_USER_REG_Heat_OnLine    0x04             // åœ¨åŠ çƒ­
+#define SHT_USER_REG_Heat_OffLine   0x00             // æ— åŠ çƒ­
 
 
 
@@ -64,10 +72,10 @@
 static uint32_t  read_sht20_err_count = 0;
 #endif
 
-// SHT 20 Æô¶¯¼ÓÈÈ
-// SHT 20 µÄ¼ÓÈÈÆ÷ÓÃÓÚÕï¶Ï SHT20 ÊÇ·ñËğ»µ
-//²ÎÊı: uint16_t * temp: Ö®Ç°µÄÆ½¾ùÎÂ¶ÈÖµ, ÎªÊµ¼ÊÎÂ¶ÈÖµµÄ10±¶, ¼´ 350 = 35.0 'C
-//      uint16_t * humi: Ö®Ç°µÄÆ½¾ùÊª¶ÈÖµ, Èç 35 = 35 % RH
+// SHT 20 å¯åŠ¨åŠ çƒ­
+// SHT 20 çš„åŠ çƒ­å™¨ç”¨äºè¯Šæ–­ SHT20 æ˜¯å¦æŸå
+//å‚æ•°: uint16_t * temp: ä¹‹å‰çš„å¹³å‡æ¸©åº¦å€¼, ä¸ºå®é™…æ¸©åº¦å€¼çš„10å€, å³ 350 = 35.0 'C
+//      uint16_t * humi: ä¹‹å‰çš„å¹³å‡æ¹¿åº¦å€¼, å¦‚ 35 = 35 % RH
 //static uint16_t last_temp;
 //static uint16_t last_humi;
 
@@ -85,21 +93,21 @@ static os_timer_t tTimerSHT20;
 #define TEMP_INDEX 0
 #define HUMI_INDEX 1
 
-#define READ_TIMES    4   // ¶ÁÈ¡´ÎÊı
+#define READ_TIMES    4   // è¯»å–æ¬¡æ•°
 static uint16_t sht_buf[2][READ_TIMES];  
 static uint8_t temp_read_count = 0;
 static uint8_t humi_read_count = 0;
 static uint8_t sht20_read_count = 0; 
-static uint8_t next_read_which = 0; // ÏÂÒ»´Î¶ÁÎÂ¶È 0, »¹ÊÇÊª¶È: 1
+static uint8_t next_read_which = 0; // ä¸‹ä¸€æ¬¡è¯»æ¸©åº¦ 0, è¿˜æ˜¯æ¹¿åº¦: 1
 
-// ¹«Ê½: T = - 46.85 + (175.72 * T) / (2 ^ 16)
-// ·µ»ØÖµ: -1 ËµÃ÷ÎÂ¶ÈÖµ < 0, 1: ÎÂ¶ÈÖµ > 0
+// å…¬å¼: T = - 46.85 + (175.72 * T) / (2 ^ 16)
+// è¿”å›å€¼: -1 è¯´æ˜æ¸©åº¦å€¼ < 0, 1: æ¸©åº¦å€¼ > 0
 int8_t SHT20_CalculateTemp(uint16_t adc, uint16_t * out_temp)
 {
    double real_temp = 0.0;
    int8_t sign = 0;  
 
-   adc &= 0xFFFC;  // ×îºó2Î»ÊÇ±êÖ¾Î», ¶ªÆú
+   adc &= 0xFFFC;  // æœ€å2ä½æ˜¯æ ‡å¿—ä½, ä¸¢å¼ƒ
    real_temp = ((175.72 * adc) / 65536.0) - 46.85;
    if(real_temp < 0)
    {
@@ -133,7 +141,7 @@ void TimerSHT20Sensor_CallBack(void * arg)
 {
 	SYS_RESULT res;
     uint8_t buf[3] = {0, 0, 0};
-	uint8_t val_type = 0;  // ÖµÀàĞÍ: ÎÂ¶È: 0; Êª¶È: 1
+	uint8_t val_type = 0;  // å€¼ç±»å‹: æ¸©åº¦: 0; æ¹¿åº¦: 1
 	uint8_t reg_val = 0;
 	int8_t  sign = 0;
 	uint16_t temp_humi = 0;
@@ -145,62 +153,63 @@ void TimerSHT20Sensor_CallBack(void * arg)
 
        #if SHT_DEBUG_EN
 	   read_sht20_err_count++;
-	   os_printf("read SHT20 failed, tick = %ld, err_count = %ld\r\n", os_get_tick(), read_sht20_err_count);
+	   sht_printf("read SHT20 failed, tick = %ld, err_count = %ld\r\n", os_get_tick(), read_sht20_err_count);
 	   #endif
 	   
-       return;    // ¶ÁÈ¡Ê§°Ü
+       return;    // è¯»å–å¤±è´¥
     }
 	else
 	{
 	    val_type = ((buf[1] & SHT_DATA_REG_STA_BitMask) ? HUMI_INDEX : TEMP_INDEX);
 
 		#if SHT_DEBUG_EN
-		os_printf("read SHT20 %s success, tick = %ld, err_count = %ld\r\n", (val_type ? "humi" : "temp"), 
+		sht_printf("read SHT20 %s success, tick = %ld, err_count = %ld\r\n", (val_type ? "humi" : "temp"), 
 			        os_get_tick(), read_sht20_err_count);
-        os_printf("buf[0] = 0x%x, buf[1] = 0x%x, buf[2] = 0x%x\r\n", buf[0], buf[1], buf[2]);
+        sht_printf("buf[0] = 0x%x, buf[1] = 0x%x, buf[2] = 0x%x\r\n", buf[0], buf[1], buf[2]);
 		#endif
 		
-        if(val_type)  // 1: ÎªÊª¶ÈÖµ
+        if(val_type)  // 1: ä¸ºæ¹¿åº¦å€¼
         {
-            sht_buf[val_type][humi_read_count] = ((uint16_t)buf[0] << 8) + buf[1];   // ±£´æÊª¶ÈÖµ
+            sht_buf[val_type][humi_read_count] = ((uint16_t)buf[0] << 8) + buf[1];   // ä¿å­˜æ¹¿åº¦å€¼
 			sign = SHT20_CalculateHumi(sht_buf[val_type][humi_read_count], &temp_humi);
 
 			#if SHT_DEBUG_EN
-            os_printf("humi = 0x%x, %c%d.%02d%% RH \r\n", sht_buf[val_type][humi_read_count], 
+            sht_printf("humi = 0x%x, %c%d.%02d%% RH \r\n", sht_buf[val_type][humi_read_count], 
 				        (sign == 0 ? ' ' : '-'), temp_humi / 100, temp_humi);
-			os_printf("humi count = %d\r\n", humi_read_count);
+			sht_printf("humi count = %d\r\n", humi_read_count);
 			#endif
 			
             tTempHumi.humi = temp_humi;
 
-			os_printf("old humi = %d, humi_p = %d\r\n", temp_humi, tTempHumi.humi);
+			sht_printf("old humi = %d, humi_p = %d\r\n", temp_humi, tTempHumi.humi);
 			
 			temp_humi     = tTempHumi.humi % 10000 / 100;
-			SDRR_SaveSensorPoint(SENSOR_HUMI, &temp_humi);  // Ë¢ĞÂÊª¶ÈÊı¾İµã
+			SDRR_SaveSensorPoint(SENSOR_HUMI, &temp_humi);  // åˆ·æ–°æ¹¿åº¦æ•°æ®ç‚¹
 
             if(++humi_read_count >= READ_TIMES)humi_read_count = 0;
 			if(next_read_which == HUMI_INDEX)next_read_which = TEMP_INDEX;
         }
-		else  // 0: ÎªÎÂ¶ÈÖµ
+		else  // 0: ä¸ºæ¸©åº¦å€¼
 		{
-		    sht_buf[val_type][temp_read_count] = ((uint16_t)buf[0] << 8) + buf[1]; // ±£³ÖÎÂ¶ÈÖµ 
+		    sht_buf[val_type][temp_read_count] = ((uint16_t)buf[0] << 8) + buf[1]; // ä¿æŒæ¸©åº¦å€¼ 
 		    sign = SHT20_CalculateTemp(sht_buf[val_type][temp_read_count], &temp_humi);
 
             #if SHT_DEBUG_EN
-            os_printf("temp = 0x%x, %c%d.%02d 'C \r\n", sht_buf[val_type][temp_read_count], 
+            sht_printf("temp = 0x%x, %c%d.%02d 'C \r\n", sht_buf[val_type][temp_read_count], 
 				       (sign == 0 ? ' ' : '-'), temp_humi / 100, temp_humi % 100);
-			os_printf("temp count = %d\r\n", temp_read_count);
+			sht_printf("temp count = %d\r\n", temp_read_count);
 			#endif
 
 			tTempHumi.temp = temp_humi;
+			//tTempHumi.temp -= 250;  // æ¸©åº¦æ ¡æ­£, å•ä½: 0.01 'C
             if(sign == -1)
 			{
-				tTempHumi.temp += 10000;  // µÚ5Î» Îª 1±íÊ¾Îª¸ºÖµ  
+				tTempHumi.temp |= 0x8000;  // bit15 ä¸º 1è¡¨ç¤ºä¸ºè´Ÿå€¼  
             }
 			
-			os_printf("old_temp = %d, temp_p: %d\r\n", temp_humi, tTempHumi.temp);
+			sht_printf("old_temp = %d, temp_p: %d\r\n", temp_humi, tTempHumi.temp);
 			temp_humi = tTempHumi.temp;
-			SDRR_SaveSensorPoint(SENSOR_TEMP, &temp_humi);  // Ë¢ĞÂÎÂ¶ÈÊı¾İµã
+			SDRR_SaveSensorPoint(SENSOR_TEMP, &temp_humi);  // åˆ·æ–°æ¸©åº¦æ•°æ®ç‚¹
 
 		  
             if(++temp_read_count >= READ_TIMES)temp_read_count = 0;
@@ -215,34 +224,34 @@ void TimerSHT20Sensor_CallBack(void * arg)
 		}
 
 		
-		if(next_read_which == TEMP_INDEX)  // ÏÂÒ»´ÎĞèÒª¶ÁÎÂ¶È
+		if(next_read_which == TEMP_INDEX)  // ä¸‹ä¸€æ¬¡éœ€è¦è¯»æ¸©åº¦
 		{
-		   	IIC_WriteNByte(SHT20_I2C_ADDR, SHT_T_NotHold_CMD, &reg_val, 0);     // Æô¶¯ÎÂ¶È²âÁ¿
+		   	IIC_WriteNByte(SHT20_I2C_ADDR, SHT_T_NotHold_CMD, &reg_val, 0);     // å¯åŠ¨æ¸©åº¦æµ‹é‡
 		}
 		else
 		{
-		   IIC_WriteNByte(SHT20_I2C_ADDR, SHT_RH_NotHold_CMD, &reg_val, 0);     // Æô¶¯Êª¶È²âÁ¿
+		   IIC_WriteNByte(SHT20_I2C_ADDR, SHT_RH_NotHold_CMD, &reg_val, 0);     // å¯åŠ¨æ¹¿åº¦æµ‹é‡
 		}
-	    os_timer_arm(&tTimerSHT20, 135, 0);  // 1.35 sec ²âÁ¿Ò»´Î, ²»ÒËÌ«Æµ·±, ·ñÔòĞ¾Æ¬×ÔÉí»áÉıÎÂ
+	    os_timer_arm(&tTimerSHT20, 135, 0);  // 1.35 sec æµ‹é‡ä¸€æ¬¡, ä¸å®œå¤ªé¢‘ç¹, å¦åˆ™èŠ¯ç‰‡è‡ªèº«ä¼šå‡æ¸©
 	}
 }
 
 
 /********************************
-¹¦ÄÜ: SHT20 ÎÂÊª¶È¼Ä´æÆ÷ÅäÖÃ
-²ÎÊı: uint8_t precision_mask: ÎÂÊª¶È¾«¶ÈÅäÖÃ, ÖµÎª:
+åŠŸèƒ½: SHT20 æ¸©æ¹¿åº¦å¯„å­˜å™¨é…ç½®
+å‚æ•°: uint8_t precision_mask: æ¸©æ¹¿åº¦ç²¾åº¦é…ç½®, å€¼ä¸º:
                          SHT_USER_REG_RH12_T14
                          SHT_USER_REG_RH8_T12
                          SHT_USER_REG_RH10_T13
                          SHT_USER_REG_RH11_T11
-             uint8_t is_heated: ÊÇ·ñ¼ÓÈÈ
+             uint8_t is_heated: æ˜¯å¦åŠ çƒ­
 
 *********************************/
 void SHT20_RegConfig(uint8_t precision_mask, uint8_t is_heated)
 {
 	uint8_t reg_val = 0;
     uint8_t res = 0;
-    uint8_t old_config = 0; // Ô­ÅäÖÃ
+    uint8_t old_config = 0; // åŸé…ç½®
 
     if(   precision_mask != SHT_USER_REG_RH12_T14
 	   && precision_mask != SHT_USER_REG_RH8_T12
@@ -256,17 +265,17 @@ void SHT20_RegConfig(uint8_t precision_mask, uint8_t is_heated)
     if(res){ INSERT_ERROR_INFO(0); return; }
 	
 	#if SHT_DEBUG_EN
-    os_printf("first read user_reg = 0x%x, line = %d\n", reg_val, __LINE__);
+    sht_printf("first read user_reg = 0x%x, line = %d\n", reg_val, __LINE__);
     #endif
 	
 	old_config = reg_val & SHT_USER_REG_RH_T_BitMask;
 	if(old_config != precision_mask)
 	{
 	    #if SHT_DEBUG_EN
-	    os_printf("sht precision change: old = 0x%x, new = 0x%x\r\n", old_config, precision_mask);
+	    sht_printf("sht precision change: old = 0x%x, new = 0x%x\r\n", old_config, precision_mask);
 		#endif
 		
-        reg_val &= ~SHT_USER_REG_RH_T_BitMask;  // ÉèÖÃÎª RH 12bit, T 14 bit
+        reg_val &= ~SHT_USER_REG_RH_T_BitMask;  // è®¾ç½®ä¸º RH 12bit, T 14 bit
 	    if(precision_mask)
 	    {
 	       reg_val |= precision_mask;
@@ -277,13 +286,13 @@ void SHT20_RegConfig(uint8_t precision_mask, uint8_t is_heated)
 	if(old_config != is_heated)
 	{
 	   #if SHT_DEBUG_EN
-	   os_printf("sht heat config change: old = %d, new = %d\r\n", old_config, is_heated);
+	   sht_printf("sht heat config change: old = %d, new = %d\r\n", old_config, is_heated);
 	   #endif
 	   
 	   if(is_heated)
-           reg_val |= SHT_USER_REG_Heat_OnLine;   // Æô¶¯Æ¬ÉÏ¼ÓÈÈÆ÷
+           reg_val |= SHT_USER_REG_Heat_OnLine;   // å¯åŠ¨ç‰‡ä¸ŠåŠ çƒ­å™¨
        else
-	       reg_val &= ~SHT_USER_REG_Heat_OnLine;  // Í£Ö¹Æ¬ÉÏ¼ÓÈÈÆ÷
+	       reg_val &= ~SHT_USER_REG_Heat_OnLine;  // åœæ­¢ç‰‡ä¸ŠåŠ çƒ­å™¨
 	}
 	   
     res = IIC_WriteNByte(SHT20_I2C_ADDR, SHT_WriteReg_CMD, &reg_val, 1);
@@ -294,33 +303,33 @@ void SHT20_RegConfig(uint8_t precision_mask, uint8_t is_heated)
     if(res){ INSERT_ERROR_INFO(0); return; }
 	
 	#if SHT_DEBUG_EN
-    os_printf("reread user_reg = 0x%x, line = %d\n", reg_val, __LINE__);
+    sht_printf("reread user_reg = 0x%x, line = %d\n", reg_val, __LINE__);
     #endif
 	
     if((reg_val & SHT_USER_REG_RH_T_BitMask) == precision_mask)  
     {
- 	  IIC_WriteNByte(SHT20_I2C_ADDR, SHT_T_NotHold_CMD, &reg_val, 0);  // Æô¶¯ÎÂ¶È²âÁ¿
+ 	  IIC_WriteNByte(SHT20_I2C_ADDR, SHT_T_NotHold_CMD, &reg_val, 0);  // å¯åŠ¨æ¸©åº¦æµ‹é‡
     }
 	#if SHT_DEBUG_EN
     else
     {
- 	  os_printf("SHT RegConfig precision mask Failed, user_reg = 0x%x, tick = %ld, %s, %d\r\n", 
+ 	  sht_printf("SHT RegConfig precision mask Failed, user_reg = 0x%x, tick = %ld, %s, %d\r\n", 
  				  reg_val, os_get_tick(), __FILE__, __LINE__);
     }
 	
 	if(is_heated)
 	{
-	    if((reg_val & SHT_USER_REG_Heat_BitMask) == 0)  // ĞèÒª¼ÓÈÈ, µ«»Ø¶ÁÖµÈ´Îª²»¼ÓÈÈ, ¼Ä´æÆ÷ÉèÖÃ´íÎó
+	    if((reg_val & SHT_USER_REG_Heat_BitMask) == 0)  // éœ€è¦åŠ çƒ­, ä½†å›è¯»å€¼å´ä¸ºä¸åŠ çƒ­, å¯„å­˜å™¨è®¾ç½®é”™è¯¯
 	    {
-	       os_printf("SHT RegConfig Heat Failed, user_reg = 0x%x, tick = %ld, %s, %d\r\n", 
+	       sht_printf("SHT RegConfig Heat Failed, user_reg = 0x%x, tick = %ld, %s, %d\r\n", 
  				  reg_val, os_get_tick(), __FILE__, __LINE__);
 	    }
 	}
-	else  // ²»ĞèÒª¼ÓÈÈ
+	else  // ä¸éœ€è¦åŠ çƒ­
 	{
 	    if((reg_val & SHT_USER_REG_Heat_BitMask))  
 	    {
-	       os_printf("SHT RegConfig Cancel Heat Failed, user_reg = 0x%x, tick = %ld, %s, %d\r\n", 
+	       sht_printf("SHT RegConfig Cancel Heat Failed, user_reg = 0x%x, tick = %ld, %s, %d\r\n", 
  				  reg_val, os_get_tick(), __FILE__, __LINE__);
 	    }
 	}
@@ -334,3 +343,7 @@ void SHT20_Init(void)
 	os_timer_arm(&tTimerSHT20,   500, 0);
 }
 
+void SHT20_ClosePower(void)
+{
+    os_timer_disarm(&tTimerSHT20);
+}

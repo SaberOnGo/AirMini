@@ -30,29 +30,29 @@
 /**
  * RCC configuration
  */
- #if 0  // by pi 2017-5-16 ²»ĞèÒª
+ #if 0  // by pi 2017-5-16 ä¸éœ€è¦
 static void RCC_Configuration(void)
 {
     RCC_ClocksTypeDef rcc_clocks;
 
 	RCC_GetClocksFreq(&rcc_clocks);
-	/* È·¶¨¾§ÕñÍêÈ«ÆğÕñ */
+	/* ç¡®å®šæ™¶æŒ¯å®Œå…¨èµ·æŒ¯ */
 	assert_param(rcc_clocks.HCLK_Frequency == 72000000);
 
-    //ÏÂÃæÊÇ¸ø¸÷Ä£¿é¿ªÆôÊ±ÖÓ
-    //Æô¶¯GPIO
+    //ä¸‹é¢æ˜¯ç»™å„æ¨¡å—å¼€å¯æ—¶é’Ÿ
+    //å¯åŠ¨GPIO
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOB | \
                            RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | \
                            RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOG,
                            ENABLE);
 
-    //Æô¶¯AFIO
+    //å¯åŠ¨AFIO
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
-    //Æô¶¯USART1Ê±ÖÓ
+    //å¯åŠ¨USART1æ—¶é’Ÿ
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
-    //Æô¶¯USART2Ê±ÖÓ
+    //å¯åŠ¨USART2æ—¶é’Ÿ
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
-    //Æô¶¯DMAÊ±ÖÓ
+    //å¯åŠ¨DMAæ—¶é’Ÿ
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
     /* Enable ADC1 and GPIOC clock */
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);

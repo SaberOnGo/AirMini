@@ -39,35 +39,7 @@ static T_SDRR tSDRR;
 // 传感器数据记录模块初始化
 void SDRR_Init(void)
 {
-   //uint16_t len = 0;
    
-   os_memset(&tSDRR, 0, sizeof(tSDRR));
-
-   #if 0
-   tSDRR.time.year = 17;
-   tSDRR.time.month = 6;
-   tSDRR.time.day = 13;
-   tSDRR.time.hour = 11;
-   tSDRR.time.min = 10;
-   tSDRR.time.sec = 58;
-   tSDRR.hcho = 76;
-   tSDRR.pm2p5 = 22;
-   tSDRR.RH = 53;
-   tSDRR.temp = 27;
-   
-   os_memset(sector_buf, 0, sizeof(sector_buf));
-
-   len += os_snprintf(&sector_buf[len], sizeof(sector_buf) - cur_str_len, "[%05d]  %02d-%02d-%02d %02d:%02d:%02d  ", total_item_count, 
-                       tSDRR.time.year, tSDRR.time.month, tSDRR.time.day, 
-                       tSDRR.time.hour, tSDRR.time.min,   tSDRR.time.sec);
-   len += os_snprintf(&sector_buf[len], sizeof(sector_buf) - cur_str_len, "%c.%03d  %3d    %3d.%c  %2d%%\r\n", (tSDRR.hcho % 10000 / 1000) + 0x30,
-   	                    tSDRR.hcho % 1000, tSDRR.pm2p5 % 1000, tSDRR.temp % 1000 / 10, (tSDRR.temp % 10) + 0x30, tSDRR.RH % 100);
-   
-   os_printf("%s, len = %d\n", (const char *)sector_buf, len);
-   #endif
-
-   total_item_count = FILE_GetSensorTotalItems();
-   os_printf("init: total_items = %ld\n", total_item_count);
 }
 
 // 将传感器数据转化为字符串
@@ -230,7 +202,7 @@ E_RESULT SDRR_SaveSensorPoint(E_SensorType type, void  * data)
 	tSDRR.sensor_mask |= 1 << SENSOR_TIME;
 	tSDRR.sensor_mask |= 1 << SENSOR_HUMI;
 	tSDRR.sensor_mask |= 1 << SENSOR_TEMP;
-    if(tSDRR.sensor_mask == ( (1 << (SENSOR_END)) - 1))  // 各传感器节点已全部保存
+   // if(tSDRR.sensor_mask == ( (1 << (SENSOR_END)) - 1))  // 各传感器节点已全部保存
 	{
 	   if(OS_IsTimeout(save_time_out))
 	   {		   

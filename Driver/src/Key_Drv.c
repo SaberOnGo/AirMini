@@ -15,7 +15,7 @@
 static uint8_t cur_display_mode = DISPLAY_CC;  // 当前显示模式
 
 uint8_t is_rgb_on = 0;   // RGB 是否打开, 0: 默认不打开; 1: 打开
-uint8_t is_debug_on = 0; // 调试打印开关
+uint8_t is_debug_on = 1; // 调试打印开关
 
 void key_gpio_init(void)
 {
@@ -146,7 +146,24 @@ uint16_t key_read(void)
 #include "LCD1602_Drv.h"
 #include "Application.h"
 
+
+
 uint8_t record_flag = 0;  
+
+#if GIZWITS_TYPE
+#include "gizwits_port.h"
+#include "os_timer.h"
+#include "gizwits_protocol.h"
+#include "gizwits_product.h"
+
+uint8_t allow_config_wifi = 0;
+uint32_t config_wifi_timeout = 0;   // 10 sec 后失效
+os_timer_t tTimerChkAllowConfigWifi;
+void TimerChkAllowConfigWifi(void * arg)
+{
+         allow_config_wifi = 0;
+}
+#endif
 
 void key_process(uint16_t key)
 { 
@@ -169,13 +186,34 @@ void key_process(uint16_t key)
 				    case S_key:  
 					{
 						KEY_DEBUG("S\n");
+
+						#if GIZWITS_TYPE
+						KEY_DEBUG("allow user to config wifi\r\n");
+						allow_config_wifi = 1;
+						config_wifi_timeout = OS_SetTimeout(SEC(10));
+						os_timer_setfn(&tTimerChkAllowConfigWifi,  TimerChkAllowConfigWifi,  NULL);
+						os_timer_arm(&tTimerChkAllowConfigWifi, SEC(10),  0);
+                               	       #endif
+                               	       
 					}break;
 					case D_key:
 					{
 						KEY_DEBUG("D\n");
-						record_flag ^= 1;
-						if(record_flag)LCD1602_WriteCmd(0x0F);  // 光标闪烁
-						else { LCD1602_WriteCmd(0x0C); }
+
+				       #if GIZWITS_TYPE
+				              if(allow_config_wifi)
+				              {
+    						       KEY_DEBUG("enter WiFi AirLink connect mode \r\n");
+
+    						       allow_config_wifi = 0;
+    				                     #if GIZWITS_TYPE == GIZ_MCU			
+                                   		 gizwitsSetMode(WIFI_AIRLINK_MODE);
+                                                 #elif GIZWITS_TYPE == GIZ_SOC
+                                                  gizwits_set_wifi_mode(WIFI_AIRLINK_MODE);
+                                                 #endif
+                                           }
+                                  #endif
+                                   
 					}break;
 					case L_key:
 					{
@@ -201,13 +239,14 @@ void key_process(uint16_t key)
 						{
 						    KEY_DEBUG("power down\n");
 						    is_5v_power_close = E_TRUE;
-                            BatLev_ClosePower(0);  // 关机
+                                              BatLev_ClosePower(0);  // 关机
 						}
 						else
 						{ 
 						    KEY_DEBUG("power up\n");
 						    is_5v_power_close = E_FALSE;
-						    JumpToBootloader();
+							AppInit();
+						    //JumpToBootloader();
 						}
 						
 					}break;

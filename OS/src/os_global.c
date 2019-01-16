@@ -134,8 +134,9 @@ uint8_t Util_NumToString(uint32_t val, uint8_t * out_buf, uint8_t placeholder_si
 #include "misc.h"
 void JumpToBootloader(void)
 {
-    RCC_DeInit();
     GLOBAL_DISABLE_IRQ();
+    RCC_DeInit();
+    
 	NVIC_SystemReset();
 	
 	#if 0
@@ -156,6 +157,17 @@ void JumpToBootloader(void)
 }
 
 
+uint8_t sys_gen_sum_8(uint8_t * buf,  uint16_t len)
+{
+          register uint16_t i;
+          uint8_t sum = 0;
+
+          for(i = 0;  i  < len; i++)
+          {
+                 sum += buf[i];
+          }
+          return sum;
+}
 
 uint32_t Sys_GenSum32(void * data, uint32_t length)
 {

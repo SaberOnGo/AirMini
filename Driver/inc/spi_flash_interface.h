@@ -21,10 +21,11 @@
 *************************************************************************************************************************************************************/
 #define FL_SIZE_KB(count)    (((uint32_t)count) * 1024L )    // 表示有多少KB
 
+extern uint32_t flash_get_total_capacity(void);
 
 // SPI FLASH 物理大小实际定义
-#if 0
-#define FL_TOTAL_SIZE      FL_SIZE_KB(2048)   // W25Q16
+#if 1
+#define FL_TOTAL_SIZE      flash_get_total_capacity()
 #else
 #define FL_TOTAL_SIZE      FL_SIZE_KB(4096)     // W25Q32
 #endif
@@ -74,8 +75,8 @@ DRESULT flash_disk_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count);
 uint16_t flash_mal_write(uint8_t lun, uint32_t addr, uint32_t * buffer, uint16_t bytes);
 uint16_t flash_mal_read(uint8_t lun, uint32_t addr, uint32_t * buffer, uint16_t bytes);
 
-
-
+void flash_set_total_capacity(uint32_t capacity);
+uint32_t flash_get_total_capacity(void);
 
 #endif   // end of file
 

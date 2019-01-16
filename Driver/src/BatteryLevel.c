@@ -1,5 +1,5 @@
 
-/*-----------------------------µç³ØµçÁ¿ÏÔÊ¾²Ù×÷------------------------------------------*/
+/*-----------------------------ç”µæ± ç”µé‡æ˜¾ç¤ºæ“ä½œ------------------------------------------*/
 
 #include "BatteryLevel.h"
 #include "os_timer.h"
@@ -16,42 +16,51 @@
 #endif
 
 
-// µç³ØµçÁ¿¶ÔÓ¦µÄµçÁ¿°Ù·Ö±È
+// ç”µæ± ç”µé‡å¯¹åº”çš„ç”µé‡ç™¾åˆ†æ¯”
 typedef struct
 {
-    uint8_t  percent;  // Ê£ÓàµçÁ¿°Ù·Ö±È, Èç: 15 ±íÊ¾: 15%
-	uint16_t volt;    // µçÑ¹: Èç 3345 ±íÊ¾: 3.345V, ¼´µ¥Î»: mV
+    uint8_t  percent;  // å‰©ä½™ç”µé‡ç™¾åˆ†æ¯”, å¦‚: 15 è¡¨ç¤º: 15%
+	uint16_t volt;    // ç”µå‹: å¦‚ 3345 è¡¨ç¤º: 3.345V, å³å•ä½: mV
 }T_BAT_LEVEL_MAP;
 
-// 
 static const T_BAT_LEVEL_MAP BatLevMap[] = 
 {
-     {0,  3300},   // 0%, 3.300 V: ±íÊ¾: <= 3.300 VÊ±, µç³ØµçÁ¿Îª 0%
+     {0,  3300},   // 0%, 3.300 V: è¡¨ç¤º: <= 3.300 Væ—¶, ç”µæ± ç”µé‡ä¸º 0%
      {10, 3450},   // 10 %, 3.45 V,
      {25, 3500},   // 25 %, 3.50 V
      {30, 3550},   // 30 %, 3.55 V
      {40, 3600},   // 40 %, 3.60 V
+     {45, 3630},  
      {50, 3650},   // 50 %, 3.65 V
      {60, 3700},   // 60 %, 3.70 V
-     {80, 3850},   // 80 %, 3.85 V
+     {65, 3750},  
+     {70, 3800},  
+     {75, 3850},   
+     {80, 3900},   // 80 %, 3.85 V
+     {85, 3950},   // 80 %, 3.85 V
      {90, 4050},   // 90 %, 4.05 V
-     {100, 4200}, // 100 %, 4.20 V
+     {95, 4060},   
+     {100, 4070}, // 100 %, 4.20 V
 };
 
 #define BAT_LEVELS   (sizeof(BatLevMap) / sizeof(BatLevMap[0]))
 
-uint8_t bat_lev_percent = 0;  // µç³ØµçÁ¿
+
+uint8_t bat_lev_percent = 0;  // ç”µæ± ç”µé‡
 E_BOOL is_5v_power_close = E_FALSE;
 
 
 
+extern void TVOC_ClosePower(void);
+extern void SHT20_ClosePower(void);
 
 void BatLev_ClosePower(uint8_t pwr_close)
 {
     BAT_DEBUG("close power\n");
 	
+	SHT20_ClosePower();
+    TVOC_ClosePower();
 	
-    
 	LCD_Ctrl_Set(SW_CLOSE);
 	XR1151_EN_Close(); 
 	PowerCtrl_LowerPower();
@@ -67,10 +76,10 @@ void BatLev_OpenPower(void)
 	is_5v_power_close = E_FALSE;
 }
 
+
 static void BatLev_GetPercent(uint16_t bat_volt)
 {
    uint8_t i;
-   //uint8_t usb_sta = 0;
 
    if(bat_volt <= BatLevMap[0].volt){ bat_lev_percent  = 0; }
    else if(bat_volt >= BatLevMap[BAT_LEVELS - 1].volt )
@@ -90,16 +99,13 @@ static void BatLev_GetPercent(uint16_t bat_volt)
       }
    }
    BAT_DEBUG("bat=%02d%%, t = %ld\n", bat_lev_percent, os_get_tick());
-   //usb_sta = VIN_DETECT_Read();
-  
-   if( (bat_lev_percent < 30) && (VIN_DETECT_Read() == 0) )  // µçÁ¿Ğ¡ÓÚ 30%, ¹Ø±ÕËùÓĞ´«¸ĞÆ÷
+   if( (bat_lev_percent < 45) && (VIN_DETECT_Read() == 0) )  // ç”µé‡å°äº 45 %, å…³é—­æ‰€æœ‰ä¼ æ„Ÿå™¨
    {
-       
+       BAT_DEBUG("bat=%02d%%, pwr dn\n", bat_lev_percent);
        BatLev_ClosePower(1);
-	   
-	   //PowerCtrl_LowerPower();
    }
 }
+
 
 
 extern void ADCDrv_StartBatteryMeasure(void  (*end_exe_func)(uint16_t arg));
@@ -132,7 +138,7 @@ uint8_t BatteryIsCharging(void)
     uint8_t sta = 0;
 	uint16_t count = 0xFFF;
 
-    if( BAT_CE_Read() == 0)  // ¹Ø±ÕÁË³äµç
+    if( BAT_CE_Read() == 0)  // å…³é—­äº†å……ç”µ
     {
        BAT_CE_Set(SW_OPEN);
 	   while((! BAT_CE_Read()) && count--);
@@ -143,7 +149,7 @@ uint8_t BatteryIsCharging(void)
     }
 	else 
 	{
-	   if(CHRG_Indicate_Read() == 0)  // ËµÃ÷ÕıÔÚ³äµç
+	   if(CHRG_Indicate_Read() == 0)  // è¯´æ˜æ­£åœ¨å……ç”µ
 	      return E_TRUE;
 	   else return E_FALSE;
 	}

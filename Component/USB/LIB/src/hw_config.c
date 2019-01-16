@@ -95,7 +95,7 @@ void USBSet_USBClock(void)
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_USB, ENABLE);
   #else
 
-  //  ╡исцдз╡© HSI 8MHz RCуЯ╣╢фВ, PLLCLK = HCLK = SYSCLK = 48MHz
+  //  И┤┤Г■╗Е├┘И┐╗ HSI 8MHz RCФ▄╞Х█║Е≥╗, PLLCLK = HCLK = SYSCLK = 48MHz
   /* USBCLK = PLLCLK  = 48 MHz */
   STM32_RCC_USBCLKConfig(RCC_USBCLKSource_PLLCLK_Div1);
 
@@ -167,8 +167,8 @@ void USB_Interrupts_Config(void)
   NVIC_Init(&NVIC_InitStructure);
 
   #else
-  STM32_NVICInit(USB_LP_CAN1_RX0_IRQn, 2, 2, 0);	 // ╣з2вИсеох╪╤, 2н╩гюу╪сеох╪╤, 2н╩оЛс╕сеох╪╤
-  STM32_NVICInit(USB_HP_CAN1_TX_IRQn,  2, 1, 0);	 // ╣з1вИсеох╪╤, 1н╩гюу╪сеох╪╤, 3н╩оЛс╕сеох╪╤
+  STM32_NVICInit(USB_LP_CAN1_RX0_IRQn, 2, 2, 0);	 // Г╛╛2Г╩└Д╪≤Е┘┬Г╨╖, 2Д╫█Ф┼╒Е█═Д╪≤Е┘┬Г╨╖, 2Д╫█Е⌠█Е╨■Д╪≤Е┘┬Г╨╖
+  STM32_NVICInit(USB_HP_CAN1_TX_IRQn,  2, 1, 0);	 // Г╛╛1Г╩└Д╪≤Е┘┬Г╨╖, 1Д╫█Ф┼╒Е█═Д╪≤Е┘┬Г╨╖, 3Д╫█Е⌠█Е╨■Д╪≤Е┘┬Г╨╖
   #endif
 
 }

@@ -1,22 +1,22 @@
 
 #ifndef __REG_LIB_H__
 #define  __REG_LIB_H__
-/********************** STM32F10X ¼Ä´æÆ÷¿â ******************************************/
+/********************** STM32F10X å¯„å­˜å™¨åº“ ******************************************/
 
 #include <stm32f10x.h>
-#include "sys.h"									//ÓÃÓÚÎ»¶Î²Ù×÷£¬ÓÃ·¨¼ûÍ·ÎÄ¼ş
+#include "sys.h"									//ç”¨äºä½æ®µæ“ä½œï¼Œç”¨æ³•è§å¤´æ–‡ä»¶
 
 #define NVIC_GROUP 2
 
 
-/********************************************SPIÍ¨ĞÅÊµÑé***********************************************/
-/*¹¦ÄÜº¯ÊıÊ¹ÓÃËµÃ÷£º
-	1£¬STM32_SPIxInitÓÃÓÚ³õÊ¼»¯SPI¿Ú£¬SPIxÎªSPI¿Ú¡£
-	2£¬STM32_SPIxSetSpeedÉèÖÃSPI²¨ÌØÂÊ·ÖÆµ£¬SPIxÎªSPI¿Ú£¬²¨ÌØÂÊ=Fpclk/·ÖÆµÊı¡£
-	3£¬STM32_SPIxReadWriteByteÓÃÓÚÍ¨¹ıSPI×ÜÏß¶ÁĞ´Ò»¸ö×Ö½Ú£¬SPIxÎªSPI¿Ú£¬TxDataÎªÒªĞ´µ½SPI×ÜÏßÉÏµÄÊı¾İ£¬
-		º¯Êı·µ»Ø´ÓSPI×ÜÏßÉÏ¶ÁÈ¡µÄÊı¾İ¡£
+/********************************************SPIé€šä¿¡å®éªŒ***********************************************/
+/*åŠŸèƒ½å‡½æ•°ä½¿ç”¨è¯´æ˜ï¼š
+	1ï¼ŒSTM32_SPIxInitç”¨äºåˆå§‹åŒ–SPIå£ï¼ŒSPIxä¸ºSPIå£ã€‚
+	2ï¼ŒSTM32_SPIxSetSpeedè®¾ç½®SPIæ³¢ç‰¹ç‡åˆ†é¢‘ï¼ŒSPIxä¸ºSPIå£ï¼Œæ³¢ç‰¹ç‡=Fpclk/åˆ†é¢‘æ•°ã€‚
+	3ï¼ŒSTM32_SPIxReadWriteByteç”¨äºé€šè¿‡SPIæ€»çº¿è¯»å†™ä¸€ä¸ªå­—èŠ‚ï¼ŒSPIxä¸ºSPIå£ï¼ŒTxDataä¸ºè¦å†™åˆ°SPIæ€»çº¿ä¸Šçš„æ•°æ®ï¼Œ
+		å‡½æ•°è¿”å›ä»SPIæ€»çº¿ä¸Šè¯»å–çš„æ•°æ®ã€‚
 */
-// SPI×ÜÏß²¨ÌØÂÊÉèÖÃ 
+// SPIæ€»çº¿æ³¢ç‰¹ç‡è®¾ç½® 
 typedef enum 
 {
 	SPIBaudFreqDiv_2=0,SPIBaudFreqDiv_4,SPIBaudFreqDiv_8,SPIBaudFreqDiv_16,
@@ -30,7 +30,7 @@ typedef enum
 #define STM32_RCC_APB1PeriphClockCmd(RCC_APB1Periph, NewState) \
 	((NewState) ? (RCC->APB1ENR |= RCC_APB1Periph) : (RCC->APB1ENR &= ~RCC_APB1Periph))
 
-// ÍâÉè¸´Î»
+// å¤–è®¾å¤ä½
 #define STM32_RCC_APB2PeriphResetCmd(RCC_APB2Periph, NewState) \
 	((NewState) ? (RCC->APB2RSTR |= RCC_APB2Periph) : (RCC->APB2RSTR &= ~RCC_APB2Periph))
 
@@ -49,13 +49,13 @@ typedef enum
 #define STM32_RCC_USBCLKConfig(RCC_USBCLKSource) \
 	(*(__IO uint32_t *) REG_CFGR_USBPRE_BB = RCC_USBCLKSource)
 
-// GPIO ¹Ü½ÅÉèÖÃÎªÄ£ÄâÊäÈë·½Ê½
+// GPIO ç®¡è„šè®¾ç½®ä¸ºæ¨¡æ‹Ÿè¾“å…¥æ–¹å¼
 #define STM32_GPIO_Mode_AIN(GPIOx, GPIO_Pin) \
 	((GPIO_Pin < 8) ? (GPIOx->CRL &=~ (0x0F << (GPIO_Pin * 4))) : (GPIOx->CRH &=~ (0x0F <<((GPIO_Pin - 8) * 4))))
 
 #define STM32_GPIO_ReadInputDataBit(GPIOx, GPIO_Pin) ( (GPIOx->IDR & GPIO_Pin) ? 1 : 0)
 
-// Èí¼ş´¥·¢ADC
+// è½¯ä»¶è§¦å‘ADC
 #define STM32_ADC_SoftwareStartConvCmd(ADCx, NewState) \
 	(NewState ? (ADCx->CR2 |= (ADC_CR2_EXTTRIG | ADC_CR2_SWSTART)) : \
 	(ADCx->CR2 &=~ (ADC_CR2_EXTTRIG | ADC_CR2_SWSTART)) )
@@ -65,21 +65,21 @@ typedef enum
 	RCC->APB2RSTR &= ~(RCC_APB2Periph_ADC1);\
 	}
 
-//Ê¹ÄÜÖ¸¶¨µÄADC1
+//ä½¿èƒ½æŒ‡å®šçš„ADC1
 #define STM32_ADC_Cmd(ADCx, NewState) \
 	(NewState ? (ADCx->CR2 |= ADC_CR2_ADON) : \
 	(ADCx->CR2 &= ~(ADC_CR2_ADON)))
 	
-//Ê¹ÄÜ¸´Î»Ğ£×¼  
+//ä½¿èƒ½å¤ä½æ ¡å‡†  
 #define STM32_ADC_ResetCalibration(ADCx)   (ADCx->CR2 |= ADC_CR2_RSTCAL)
 
-//»ñÈ¡¸´Î»Ğ£×¼×´Ì¬
+//è·å–å¤ä½æ ¡å‡†çŠ¶æ€
 #define STM32_ADC_GetResetCalibrationStatus(ADCx) (ADCx->CR2 & ADC_CR2_RSTCAL)
 
-//¿ªÆôADĞ£×¼
+//å¼€å¯ADæ ¡å‡†
 #define STM32_ADC_StartCalibration(ADCx)  (ADCx->CR2 |= ADC_CR2_CAL)
 
-// »ñÈ¡Ğ£×¼×´Ì¬
+// è·å–æ ¡å‡†çŠ¶æ€
 #define STM32_ADC_GetCalibrationStatus(ADCx)  (ADCx->CR2 & ADC_CR2_CAL)
 
 /**
@@ -117,7 +117,7 @@ typedef enum
 
 void STM32_SPI_I2S_DeInit(SPI_TypeDef * SPIx);
 
-// ¹¦ÄÜÍ¬ SPI_Init()
+// åŠŸèƒ½åŒ SPI_Init()
 #define STM32_SPI_Init(SPIx, SPI_Direction,\
 	SPI_Mode, SPI_DataSize, SPI_CPOL, SPI_CPHA,\
 	SPI_NSS, SPI_BaudRatePrescaler, SPI_FirstBit, SPI_CRCPolynomial) {\
@@ -142,6 +142,12 @@ void STM32_ADC_Init(ADC_TypeDef* ADCx,
                           uint32_t ExternalTrigConv,
                           uint32_t DataAlign,
                           uint8_t  NbrOfChannel);
+
+#define  IO_H(GPIOx, Pin)          (GPIOx->BSRR = Pin)
+#define  IO_L(GPIOx, Pin)          (GPIOx->BRR    = Pin)
+#define  IO_READ_IN(GPIOx, Pin)    ( (GPIOx->IDR & Pin) ? 1 : 0)
+#define IO_READ_OUT(GPIOx, Pin)   ( (GPIOx->ODR & Pin) ? 1 : 0)
+
 
 
 #endif

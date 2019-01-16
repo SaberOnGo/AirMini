@@ -11,7 +11,7 @@
 
 
 
-// ÉèÖÃÊı¾İ¿ÚÎªÊäÈë»òÊä³ö
+// è®¾ç½®æ•°æ®å£ä¸ºè¾“å…¥æˆ–è¾“å‡º
 static void LCD_set_data_dir(E_IO_DIR dir)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -49,7 +49,7 @@ static void LCD_set_data_dir(E_IO_DIR dir)
 }
 
 // Send strobe to LCD via EN line
-static void LCD_enable_write(void)  //Òº¾§Ê¹ÄÜ
+static void LCD_enable_write(void)  //æ¶²æ™¶ä½¿èƒ½
 {
     LCD_EN_H();
 	delay_us(15); // Due to datasheet E cycle time is about ~500ns
@@ -59,12 +59,13 @@ static void LCD_enable_write(void)  //Òº¾§Ê¹ÄÜ
 
 
 // Send low nibble of cmd to LCD via 4bit bus
-// ·¢ËÍµÍ4Î»Öµ
+// å‘é€ä½4ä½å€¼
 #define LCD_send_4bit(cmd) { LCD_DATA_4BIT_OUT(cmd << 4); LCD_enable_write(); }
 
-// Ó²¼ş³õÊ¼»¯
+// ç¡¬ä»¶åˆå§‹åŒ–
 void LCD1602_HardwareInit(void)
 {
+#if MODULE_LCD_EN
     GPIO_InitTypeDef GPIO_InitStructure;
 
 	GPIO_InitStructure.GPIO_Pin = LCD_RS_PIN;
@@ -91,13 +92,14 @@ void LCD1602_HardwareInit(void)
 	
     LCD_set_data_dir(OUTPUT);
 	
-    // ´ò¿ª LCD µçÔ´
+    // æ‰“å¼€ LCD ç”µæº
 	LCD_Ctrl_Set(SW_OPEN);
 
 	LCD_EN_H();
 	LCD_RW_L();
 	LCD_RS_L();
 	LCD_DATA_4BIT_H();
+#endif
 }
 
 static void LCD_enable_wait(void)
@@ -105,7 +107,7 @@ static void LCD_enable_wait(void)
 #if 0
         uint32_t timeout = 0xFFFFFFFF;
 		
-        LCD_set_data_dir(INPUT);   //ÉèÖÃbusy¿ÚÎªÊäÈë
+        LCD_set_data_dir(INPUT);   //è®¾ç½®busyå£ä¸ºè¾“å…¥
         LCD_DATA_4BIT_H();
         LCD_RS_L();  //RS=0
         LCD_RW_H();  //RW=1
@@ -114,17 +116,18 @@ static void LCD_enable_wait(void)
         LCD_EN_H();  //E=1
         delay_us(5);
         
-        while(LCD_D7_READ() && timeout--);          //µÈ´ıLCD1602_DB7Îª0
+        while(LCD_D7_READ() && timeout--);          //ç­‰å¾…LCD1602_DB7ä¸º0
 #endif
         
-        LCD_EN_L(); //ÖØÉèE=0
-        LCD_set_data_dir(OUTPUT);  //ÉèÖÃbusy¿ÚÎªÊä³ö
+        LCD_EN_L(); //é‡è®¾E=0
+        LCD_set_data_dir(OUTPUT);  //è®¾ç½®busyå£ä¸ºè¾“å‡º
 }
 
 
 // Send data to LCD via 4bit bus
 void LCD1602_WriteData(uint8_t data)
 {
+#if MODULE_LCD_EN
     LCD_enable_wait();
 	
 	LCD_RS_H();
@@ -133,11 +136,13 @@ void LCD1602_WriteData(uint8_t data)
     LCD_send_4bit(data);                    // send low nibble
     LCD_RS_L();
     delay_us(65); //65, delay_us(45);                           // write data to RAM takes about 43us
+#endif
 }
 
 // Send command to LCD via 4bit bus
-void LCD1602_WriteCmd(uint8_t cmd)   // Ğ´ÃüÁî
+void LCD1602_WriteCmd(uint8_t cmd)   // å†™å‘½ä»¤
 {
+#if MODULE_LCD_EN
     if(cmd != 0x28 && cmd != 0x38)LCD_enable_wait();
 	
 	LCD_RS_L();
@@ -145,17 +150,21 @@ void LCD1602_WriteCmd(uint8_t cmd)   // Ğ´ÃüÁî
     LCD_send_4bit(cmd >> 4);  // send high nibble
     LCD_send_4bit(cmd);       // send low nibble
     delay_us(65); //65, delay_us(45);              // typical command takes about 39us
+#endif
 }
 
-// ÉèÖÃ×ø±ê, x: ĞĞ×ø±ê, 0-1
-// y: ÁĞ×ø±ê: 0 - 15
+// è®¾ç½®åæ ‡, x: è¡Œåæ ‡, 0-1
+// y: åˆ—åæ ‡: 0 - 15
 void LCD1602_SetXY(uint8_t x, uint8_t y) 
 {
+#if MODULE_LCD_EN
     LCD1602_WriteCmd((y+ ( x << 6 )) | 0x80);  // Set DDRAM address with coordinates
+#endif
 }
 
 void LCD1602_WriteString(uint8_t x, uint8_t y, const uint8_t *s)
 {
+#if MODULE_LCD_EN
     const uint8_t *p = s;
 	
     LCD1602_SetXY( x, y );
@@ -163,16 +172,18 @@ void LCD1602_WriteString(uint8_t x, uint8_t y, const uint8_t *s)
     {
        LCD1602_WriteData( *p++ );
     }
+#endif
 }
 
-// ÍùÖ¸¶¨×ø±êÏÔÊ¾ÕûÊı val, Ç°ÃæµÄ0²»ÏÔÊ¾
-// uint8_t placeholder_size: Õ¼Î»·û¸öÊı, ÓĞ6¸öÕ¼Î»£¬ÔòÖ»ÄÜÏÔÊ¾6¸ö×Ö·ûÔÚLCDÉÏ
-// ×Ö·ûÏÔÊ¾ÓÒ¶ÔÆë
+// å¾€æŒ‡å®šåæ ‡æ˜¾ç¤ºæ•´æ•° val, å‰é¢çš„0ä¸æ˜¾ç¤º
+// uint8_t placeholder_size: å ä½ç¬¦ä¸ªæ•°, æœ‰6ä¸ªå ä½ï¼Œåˆ™åªèƒ½æ˜¾ç¤º6ä¸ªå­—ç¬¦åœ¨LCDä¸Š
+// å­—ç¬¦æ˜¾ç¤ºå³å¯¹é½
 void LCD1602_WriteInteger(uint8_t x, uint8_t y, uint32_t val, uint8_t placeholder_size)
 {
-    uint8_t num_string[10];  // ×î¶àÏÔÊ¾10¸öÕûÊı
+#if MODULE_LCD_EN
+    uint8_t num_string[10];  // æœ€å¤šæ˜¾ç¤º10ä¸ªæ•´æ•°
     uint32_t div = 1000000000;
-    uint8_t i, j, valid_size;  // valid_size ÎªÓĞĞ§ÏÔÊ¾µÄÊı×Ö¸öÊı, Èç 00123, Ôòvalid_size = 3
+    uint8_t i, j, valid_size;  // valid_size ä¸ºæœ‰æ•ˆæ˜¾ç¤ºçš„æ•°å­—ä¸ªæ•°, å¦‚ 00123, åˆ™valid_size = 3
 		
 	for(i = 0; i < 10; i++)
 	{
@@ -181,7 +192,7 @@ void LCD1602_WriteInteger(uint8_t x, uint8_t y, uint32_t val, uint8_t placeholde
 		div /= 10;
 	}
 
-    // Ìø¹ıÇ°ÃæµÄÁ¬Ğø 0
+    // è·³è¿‡å‰é¢çš„è¿ç»­ 0
     for(i = 0; i < 10; i++)
     {
        if(num_string[i] != 0x30)break;
@@ -191,46 +202,52 @@ void LCD1602_WriteInteger(uint8_t x, uint8_t y, uint32_t val, uint8_t placeholde
 	
 	if(placeholder_size >= valid_size)
 	{
-	   uint8_t space_size = placeholder_size - valid_size;  // ¿Õ°××Ö·û¸öÊı
+	   uint8_t space_size = placeholder_size - valid_size;  // ç©ºç™½å­—ç¬¦ä¸ªæ•°
 	   LCD1602_SetXY(x, y);
 	   for(j = 0; j < space_size; j++)
 	   {
 	      LCD1602_WriteData(' ');
 	   }
-	   y += placeholder_size - valid_size;   // ÓÒ¶ÔÆë
+	   y += placeholder_size - valid_size;   // å³å¯¹é½
 	}
-	else  // Õ¼Î»·û²»¹», Ö»ÏÔÊ¾Ğ¡Öµ²¿·Ö
+	else  // å ä½ç¬¦ä¸å¤Ÿ, åªæ˜¾ç¤ºå°å€¼éƒ¨åˆ†
 	{
-	   i += valid_size - placeholder_size; // Ç°Ãæ²¿·Ö²»ÏÔÊ¾, Èç 123456, Õ¼Î»·ûÎª4, ÔòÏÔÊ¾ 3456
+	   i += valid_size - placeholder_size; // å‰é¢éƒ¨åˆ†ä¸æ˜¾ç¤º, å¦‚ 123456, å ä½ç¬¦ä¸º4, åˆ™æ˜¾ç¤º 3456
 	}
 
-    LCD1602_SetXY(x, y);
+       LCD1602_SetXY(x, y);
 	for(; i < 10; i++)
 	{
-	   LCD1602_WriteData(num_string[i]);
+	      LCD1602_WriteData(num_string[i]);
 	}
+#endif
 }
 
 void LCD1602_WriteInt(uint8_t x, uint8_t y, uint16_t val)
 {
+#if MODULE_LCD_EN
    LCD1602_SetXY(x, y);
    LCD1602_WriteData((val / 10) + 0x30);
    LCD1602_WriteData((val % 10) + 0x30);
+#endif
 }
 
 // Clear LCD display and set cursor at first position
 void LCD1602_ClearScreen(void) 
 {
+#if MODULE_LCD_EN
 	LCD1602_WriteCmd(0x01);  // Clear display command
 	delay_ms(2);               // Numb display does it at least 1.53ms
 	LCD1602_WriteCmd(0x02);  // Return Home command
 	delay_ms(2);               // Numb display does it at least 1.53ms
+#endif
 }
 
 // Init LCD to 4bit bus mode
 void LCD1602_Init(void) 
 {
-    LCD1602_HardwareInit();
+#if MODULE_LCD_EN
+       LCD1602_HardwareInit();
 	
 	delay_ms(30);              // must wait >=30us after LCD Vdd rises to 4.5V
 
@@ -240,7 +257,7 @@ void LCD1602_Init(void)
 	delay_us(150);             // must wait more than 100us
 	LCD_send_4bit(0x03);      // select 4-bit bus (still 8bit)
 	LCD_send_4bit(0x02);      // Function set: 4-bit bus (gotcha!)
-    delay_ms(10);
+       delay_ms(10);
 	LCD1602_WriteCmd(0x28);       // LCD Function: 2 Lines, 5x8 matrix
 	delay_ms(10);
 	LCD1602_WriteCmd(0x01);       // LCD Function: 2 Lines, 5x8 matrix
@@ -248,11 +265,12 @@ void LCD1602_Init(void)
 	LCD1602_WriteCmd(0x0C);       // Display control: Display: on, cursor: off
 	delay_ms(10);
 	LCD1602_WriteCmd(0x06);       // Entry mode: increment, shift disabled
-	
+#endif
 }
 
 void LCD1602_Close(void) 
 {
+#if 0
     //LCD1602_HardwareInit();
 	
 	//delay_ms(30);              // must wait >=30us after LCD Vdd rises to 4.5V
@@ -271,7 +289,7 @@ void LCD1602_Close(void)
 	LCD1602_WriteCmd(0x08);       // Display control: Display: on, cursor: off
 	delay_ms(10);
 	//LCD1602_WriteCmd(0x06);       // Entry mode: increment, shift disabled
-	
+#endif	
 }
 
 

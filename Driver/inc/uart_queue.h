@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include "Uart_Drv.h"
 
-#define  UART_CIRCLE_TX_QUEUE_EN    // 循环队列使能
+#define  UART_CIRCLE_TX_QUEUE_EN    // 寰幆闃熷垪浣胯兘
 
 
 
@@ -13,7 +13,7 @@
 
 
 void Uart_Q_Init(void);
-void Queue_UART_IRQHandler(void);
+
 
 
 

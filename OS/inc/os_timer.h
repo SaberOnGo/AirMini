@@ -15,15 +15,15 @@
 #define TIMER_DEBUG(...)
 #endif
 
-#define OS_TIMER_FLAG_DEACTIVATED 0x00   // È¥¼¤»î¶¨Ê±Æ÷
-#define OS_TIMER_FLAG_ACTIVATED   0x01   // ¼¤»î¶¨Ê±Æ÷
-#define OS_TIMER_FLAG_ONE_SHOT    0x00   // µ¥´Î¶¨Ê±
-#define OS_TIMER_FLAG_PERIODIC    0x02   // ÖÜÆÚ¶¨Ê±
+#define OS_TIMER_FLAG_DEACTIVATED 0x00   // å»æ¿€æ´»å®šæ—¶å™¨
+#define OS_TIMER_FLAG_ACTIVATED   0x01   // æ¿€æ´»å®šæ—¶å™¨
+#define OS_TIMER_FLAG_ONE_SHOT    0x00   // å•æ¬¡å®šæ—¶
+#define OS_TIMER_FLAG_PERIODIC    0x02   // å‘¨æœŸå®šæ—¶
 
-#define OS_TIMER_FLAG_PARAM_INITED      0x80   // ±íÃ÷¶¨Ê±Æ÷²ÎÊıÒÑ³õÊ¼»¯
+#define OS_TIMER_FLAG_PARAM_INITED      0x80   // è¡¨æ˜å®šæ—¶å™¨å‚æ•°å·²åˆå§‹åŒ–
 
-#define TIMER_ONE     0   // Ö»¶¨Ê±Ò»´Î
-#define TIMER_REPEAT  1   // ÖØ¸´¶¨Ê±
+#define TIMER_ONE     0   // åªå®šæ—¶ä¸€æ¬¡
+#define TIMER_REPEAT  1   // é‡å¤å®šæ—¶
 
 typedef void (*timeout_callback)(void * param);
 struct struct_os_timer;
@@ -55,9 +55,9 @@ void OS_TimerTickIncrease(uint32_t tick);
 
 #define  os_timer_disarm(timer)  OS_TimerStop(timer)
 #if 0
-void os_timer_setfn(os_timer_t *timer, os_timer_func_t * func, void *parg)               // º¯ÊıÊµÏÖ
+void os_timer_setfn(os_timer_t *timer, os_timer_func_t * func, void *parg)               // å‡½æ•°å®ç°
 #else
-#define os_timer_setfn(timer, func, parg)   OS_TimerInit(timer, func, parg, 0, 0)  // ºêÊµÏÖ
+#define os_timer_setfn(timer, func, parg)   OS_TimerInit(timer, func, parg, 0, 0)  // å®å®ç°
 #endif
 void os_timer_arm(os_timer_t * timer, uint32_t tick, uint8_t is_repeat);
 #define os_timer_is_stop(timer)   OS_TimerIsStop(timer)
