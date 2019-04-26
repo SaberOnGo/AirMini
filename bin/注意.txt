@@ -1,0 +1,6 @@
+
+注意
+
+1 升级时只能烧写文件名中带 update*.bin的文件，文件名类似: update_HV1.125 SV1.46.6.bin
+2 不能烧写bootloader文件
+3 文件中带 "2TO1"的bin 不能拷贝到U盘升级, 是APP和Bootloader的2合1文件。 APP_BOOT_2TO1_HV1.125_SV1.41
